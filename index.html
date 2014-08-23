@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="description" content="Analysis-resynthesis tool">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Analysis-Resynthesis</title>
+	<link rel="stylesheet" href="css/normalize.css">
+	<style type="text/css">
+	.container { margin: 5px; }
+	</style>
+	<script src="js/jquery-1.11.1.min.js"></script>
+	<script src="js/lodash.min.js"></script>
+	<script src="js/aurora.js"></script>
+	<script src="js/audiolib.js"></script>
+	<script>
+	$(function() {
+		var fftsize = 256;
+
+		var plotColumn = function(canvas, spectrum, column) {
+			var context = canvas.getContext('2d');
+			var height = canvas.height;
+			var length = spectrum.length;
+			for (var i=0; i<length; ++i) {
+				var intensity = ~~(spectrum[i]*255*100);
+				context.fillStyle = 'rgb('+intensity+','+intensity+','+intensity+')';
+				context.fillRect(column*2, height-i*2-2, 2, 2);
+			}
+		};
+
+		$('#fileSelect').change(function() {
+			var soundFile = $(this).get(0).files[0];
+			var soundAsset = AV.Asset.fromFile(soundFile);
+
+			soundAsset.on('error', function(e) {
+				console.log(e);
+			});
+
+			var canvas = $('#timegraph > canvas').get(0);
+			canvas.width = canvas.width; // Reset the canvas
+			var spectrogram = $('#spectrogram > canvas').get(0);
+			spectrogram.width = spectrogram.width; // Reset the canvas
+
+			soundAsset.decodeToBuffer(function(buffer) {
+				var context = canvas.getContext('2d');
+				if (buffer.length > 0) {
+					// Draw waveform
+					context.moveTo(0, canvas.height/2);
+					var increment = canvas.width/buffer.length;
+					_(buffer)
+//						.groupBy(function(value, idx, collection) {
+//							return Math.floor(idx/canvas.width);
+//						})
+//						.map(function(value, idx, collection) {
+//							var max = _.max(value);
+//							var min = _.min(value);
+//							return (Math.abs(max) > Math.abs(min)) ? max : min;
+//						})
+						.each(function(value, idx, collection) {
+							context.lineTo(idx*increment, (value+1)*canvas.height/2);
+						});
+					context.lineWidth = 1;
+					context.strokeStyle = "rgb(0,0,200)";
+					context.stroke();
+
+					// Draw spectrogram
+					var fft = audioLib.FFT(soundAsset.format.sampleRate, fftsize);
+					var index = 0;
+					for (var i=0; i<buffer.length/fftsize; ++i) {
+						for (var j=0; j<fftsize; ++j) {
+							fft.pushSample(buffer[index++]);
+						}
+						plotColumn(spectrogram, fft.spectrum, i);
+					}
+				}
+			});
+		});
+	});
+	</script>
+</head>
+<body>
+	<div id="main">
+		<div id="loader" class="container">
+			Load sound: <input id="fileSelect" type="file" accept="audio/*">
+		</div>
+		<div id="timegraph" class="container">
+			<canvas style="width:100%; height: 100px; background-color: #999">
+		</div>
+		<div id="spectrogram" class="container">
+			<canvas style="width:400px; height: 400px; background-color: #000">
+		</div>
+	</div> <!-- /#main -->
+</body>
+</html>

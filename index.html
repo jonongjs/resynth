@@ -26,7 +26,7 @@
 
 		<div>
 			<div ng-repeat="tab in tabs" ng-show="currentTab == tab" ng-controller="TabController" class="tab">
-				<div sound-magic fftsize="256"></div>
+				<div sound-magic fftsize="1024"></div>
 			</div>
 		</div>
     </div>
@@ -34,6 +34,7 @@
     <script src="js/vendor/angular.min.js"></script>
     <script src="js/vendor/ui-bootstrap-tpls-0.11.0.min.js"></script>
     <script src="js/app/app.js"></script>
+    <script src="js/app/mqAudio.js"></script>
 
     <script src="js/app/MainController.js"></script>
     <script src="js/app/TabController.js"></script>

@@ -1,6 +1,6 @@
 body, html { height: 100%; }
 
-body { background-color: #FFEEFF; }
+body { background-color: #FFFFFF; }
 
 #tab-bar {
 	background-color: #96C8E8;
@@ -24,11 +24,8 @@ body { background-color: #FFEEFF; }
 	border-right: 1px solid #455C6B;
 }
 #tab-bar ul li.active {
-	background-color: #FFEEFF;
+	background-color: #FFFFFF;
 	top: 0.3em;
-	border-left:  1px solid #455C6B;
-	border-top:   1px solid #455C6B;
-	border-right: 1px solid #455C6B;
 }
 #tab-bar button {
 	background-color: white;
@@ -40,9 +37,13 @@ body { background-color: #FFEEFF; }
 	display: inline-block;
 }
 
-.tab-container { height: 100%; width 100%; }
+.tab-container {
+	height: 100%;
+	width 100%;
+	border: 1px solid #455C6B;
+}
 .tab {
-	background-color: #FFEEFF;
+	background-color: #FFFFFF;
 	padding: 1em;
 }
 .drag-upload { height: 3em; width: 90%; opacity: 0; display: none; }

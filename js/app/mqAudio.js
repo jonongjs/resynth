@@ -4,7 +4,7 @@
 	// detectPeaks() returns an Array of Peaks
 	//
 	// Track = { birth:frameNumber, peaks:ArrayOfPeaks }
-	// trackPartials() returns an Array of Tracks
+	// trackPartials() returns an Array of Tracks, ordered by birth
 
 
 	var abs = Math.abs;
@@ -116,6 +116,7 @@
 
 				 if (candidateIdx == null) {
 					 // No candidates within matchingThreshold, treat as death
+					 track.peaks.push({ freq: curFreq, amp: 0 });
 					 tracks.push(track);
 					 _.pull(curTracks, track);
 				 } else {
@@ -141,6 +142,7 @@
 						 if (lowerIndex<0 || abs(nextFreqs[lowerIndex]-curFreq) > matchingThreshold) {
 							 // Lower frequency is not a possible match
 							 // Treat this as death
+							 track.peaks.push({ freq: curFreq, amp: 0 });
 							 tracks.push(track);
 							 _.pull(curTracks, track);
 						 } else {
@@ -154,7 +156,7 @@
 
 			 // After all matches have been done, remaining peaks are treated as births
 			 _(nextPeaks).forEach(function(peak) {
-				 curTracks.push({ birth: frameIdx+1, peaks: [peak] });
+				 curTracks.push({ birth: frameIdx, peaks: [{freq:peak.freq, amp:0}, peak] });
 			 });
 		});
 

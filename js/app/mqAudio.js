@@ -2,7 +2,7 @@
 
 	var abs = Math.abs;
 
-	var matchingThreshold = 100; //TODO: parameterize
+	var matchingThreshold = 200; //TODO: parameterize
 
 	// Detect peaks in a amplitude spectrogram.
 	// Inputs:

@@ -1,5 +1,12 @@
 (function(exports) {
 
+	// Peak = { freq:frequency, amp:magnitude }
+	// detectPeaks() returns an Array of Peaks
+	//
+	// Track = { birth:frameNumber, peaks:ArrayOfPeaks }
+	// trackPartials() returns an Array of Tracks
+
+
 	var abs = Math.abs;
 
 	var matchingThreshold = 200; //TODO: parameterize
@@ -80,7 +87,7 @@
 	// - 
 	exports.trackPartials = function(peaksFrames, maxPeaks) {
 		// Track:
-		//   { birth: frameNum, death: frameNum, peaks: [peak1, peak2, ... peakN]
+		//   { birth: frameNum, peaks: [peak1, peak2, ... peakN]
 		// Perform McAulay-Quatieri frame-to-frame peak matching 
 		var tracks = [];
 		var curTracks = [];

@@ -8,6 +8,8 @@
 
 
 	var abs = Math.abs;
+	var sin = Math.sin;
+	var PI  = Math.PI;
 
 	var matchingThreshold = 200; //TODO: parameterize
 
@@ -167,8 +169,52 @@
 		return tracks;
 	};
 
-	exports.synthesize = function(tracks) {
-		//TODO:
+	exports.synthesize = function(tracks, frameLen, samplingRate) {
+		var numFrames = _(tracks)
+					.map(function(track, idx, col) { return track.birth + track.peaks.length; })
+					.max()
+					.value();
+		var FREQ_FACTOR = 2.0 * Math.PI / samplingRate;
+		var bufferSize  = numFrames * frameLen;
+		var audioBuffer = new Float64Array(bufferSize);
+
+		_(tracks).forEach(function(track, idx, col) {
+			var i = track.birth;
+			var instPhase = 0;
+			_(track.peaks).forEach(function(peak, idxp, colp) {
+				if (idxp == colp.length-1)
+					return;
+
+				while (instPhase >= PI) {
+					instPhase -= PI;
+				}
+				while (instPhase <= -PI) {
+					instPhase += PI;
+				}
+
+				// Linearly interpolate freq and amp between peaks
+				var instFreq = peak.freq;
+				var instAmp  = peak.amp;
+				var stepFreq = (colp[idxp+1].freq - peak.freq) / frameLen;
+				var stepAmp  = (colp[idxp+1].amp - peak.amp) / frameLen;
+				var end = i+frameLen;
+				var t = 0;
+				while (i < end) {
+					audioBuffer[i] = 2.0 * instAmp * sin(2*Math.PI*t*(peak.freq + stepFreq*0.5*t)/samplingRate);
+					++i;
+					instFreq += stepFreq;
+					instAmp  += stepAmp;
+					++t;
+				}
+			});
+		});
+
+		// Normalize it
+		var maxAmp = _(audioBuffer).map(abs).max().value();
+		for (var i=0; i<bufferSize; ++i) {
+			audioBuffer[i] /= maxAmp;
+		}
+		return audioBuffer;
 	};
 
 })(typeof exports === 'undefined' ? this['mqAudio']={} : exports);

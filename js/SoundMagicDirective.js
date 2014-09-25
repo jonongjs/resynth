@@ -14,10 +14,10 @@ app.directive('soundMagic', function($window) {
 			var sum = 0.0;
 			var samples = new Float64Array(windowSize);
 
-			var TAU = Math.PI * 2.0;
+			var TAU_FACTOR = Math.PI * 2.0 / (windowSize - 1);
 			var i;
 			for (i=0; i<windowSize; ++i) {
-				samples[i] = 0.54 - (0.46 * Math.cos(TAU * i / (windowSize - 1)));
+				samples[i] = 0.54 - (0.46 * Math.cos(TAU_FACTOR * i));
 				sum += samples[i];
 			}
 			for (i=0; i<windowSize; ++i) {
@@ -28,6 +28,7 @@ app.directive('soundMagic', function($window) {
 		};
 
 		var plotWaveform = function(canvas, buffer) {
+			canvas.width = canvas.width; // Clear the canvas
 			var context = canvas.getContext('2d');
 			context.moveTo(0, canvas.height/2);
 			var increment = canvas.width/buffer.length;
@@ -40,6 +41,7 @@ app.directive('soundMagic', function($window) {
 			context.stroke();
 		};
 		var plotSpectrogram = function(canvas, spectrogram) {
+			canvas.width = canvas.width; // Clear the canvas
 			var context = canvas.getContext('2d');
 			var height = canvas.height;
 			var numFrames = spectrogram.length;
@@ -78,6 +80,39 @@ app.directive('soundMagic', function($window) {
 			context.lineWidth = 1;
 			context.strokeStyle = "rgb(0,0,200)";
 			context.stroke();
+		};
+
+		var makePlayback = function(btn, buffer, sampleRate) {
+			// WebAudio stuff
+			if (!('audioContext' in scope)) {
+				if (typeof AudioContext !== "undefined") {
+					scope.audioContext = new AudioContext();
+				} else if (typeof webkitAudioContext !== "undefined") {
+					scope.audioContext = new webkitAudioContext();
+				} else {
+					throw new Error('AudioContext not supported.');
+				}
+			}
+
+			var len = buffer.length;
+			var webAudioBuf = scope.audioContext.createBuffer(1, len, sampleRate);
+			var arr = webAudioBuf.getChannelData(0);
+			for (var i=0; i<len; ++i) {
+				arr[i] = buffer[i];
+			}
+
+			btn.onclick = function() {
+				var sourceNode = scope.audioContext.createBufferSource();
+				sourceNode.buffer = webAudioBuf;
+				sourceNode.connect(scope.audioContext.destination);
+				sourceNode.onended = function() {
+					btn.innerText = 'Play';
+					btn.disabled = false;
+				};
+				sourceNode.start();
+				btn.innerText = 'Playing';
+				btn.disabled = true;
+			};
 		};
 
 		var getSpectrogram = function(buffer, sampleRate, fftsize) {
@@ -126,10 +161,13 @@ app.directive('soundMagic', function($window) {
 		var partialsCanvas = document.createElement('canvas');
 		partialsCanvas.style.width = '100%';
 		partialsCanvas.style.height = '9em';
+		var playbackBtn = document.createElement('button');
+		playbackBtn.innerText = 'Play';
 
 		element.append(timeDomainCanvas);
 		element.append(spectrogramCanvas);
 		element.append(partialsCanvas);
+		element.append(playbackBtn);
 
 		soundAsset.decodeToBuffer(function(buffer) {
 			if (buffer.length > 0) {
@@ -140,16 +178,24 @@ app.directive('soundMagic', function($window) {
 				var spectrogram = getSpectrogram(buffer, sampleRate, fftsize);
 				var peaks;
 				var partials;
+				var audioBuffer;
 
 				peaks = mqAudio.detectPeaks(spectrogram, sampleRate, 0.00001, maxPeaks);
 				partials = mqAudio.trackPartials(peaks);
+				audioBuffer = mqAudio.synthesize(partials, fftsize, sampleRate);
 
 				// Draw waveform
-				plotWaveform(timeDomainCanvas, buffer);
+//				plotWaveform(timeDomainCanvas, buffer);
 				// Draw spectrogram
-				plotSpectrogram(spectrogramCanvas, spectrogram);
+//				plotSpectrogram(spectrogramCanvas, spectrogram);
 				// Draw partials
 				plotPartials(partialsCanvas, partials, sampleRate, spectrogram);
+
+				// Create playback button
+				makePlayback(playbackBtn, audioBuffer, sampleRate);
+				// Plot the reconstructed waveform
+				plotWaveform(timeDomainCanvas, audioBuffer);
+				plotSpectrogram(spectrogramCanvas, getSpectrogram(audioBuffer, sampleRate, fftsize));
 			}
 		});
 	}

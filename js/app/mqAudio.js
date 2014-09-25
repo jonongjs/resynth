@@ -174,12 +174,12 @@
 					.map(function(track, idx, col) { return track.birth + track.peaks.length; })
 					.max()
 					.value();
-		var FREQ_FACTOR = 2.0 * Math.PI / samplingRate;
+		var FREQ_FACTOR = 2.0 * PI / samplingRate;
 		var bufferSize  = numFrames * frameLen;
 		var audioBuffer = new Float64Array(bufferSize);
 
 		_(tracks).forEach(function(track, idx, col) {
-			var i = track.birth;
+			var i = track.birth * frameLen;
 			var instPhase = 0;
 			_(track.peaks).forEach(function(peak, idxp, colp) {
 				if (idxp == colp.length-1)
@@ -200,7 +200,8 @@
 				var end = i+frameLen;
 				var t = 0;
 				while (i < end) {
-					audioBuffer[i] = 2.0 * instAmp * sin(2*Math.PI*t*(peak.freq + stepFreq*0.5*t)/samplingRate);
+					//TODO: keep track of phase
+					audioBuffer[i] += 2.0 * instAmp * sin(FREQ_FACTOR * t * (peak.freq + stepFreq*0.5*t));
 					++i;
 					instFreq += stepFreq;
 					instAmp  += stepAmp;
@@ -209,6 +210,7 @@
 			});
 		});
 
+		//TODO: figure out FFT factor
 		// Normalize it
 		var maxAmp = _(audioBuffer).map(abs).max().value();
 		for (var i=0; i<bufferSize; ++i) {

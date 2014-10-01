@@ -80,21 +80,29 @@ app.directive('soundMagic', function($window) {
 			var dxfactor = 1.0/(xscale(2)-xscale(1));
 			var dyfactor = 1.0/(yscale(2)-yscale(1));
 
+			var makelinefunc = function(partial) {
+				var line = d3.svg.line()
+					.x(function(d, i) { return xscale(partial['birth'] + i); })
+					.y(function(d) { return yscale(d['freq']); });
+				return line(partial['peaks']);
+			};
+
 			// Behaviours
-			var ondragstarted = function(d) {
+			var ondragstarted = function(partial) {
 				d3.event.sourceEvent.stopPropagation();
 				d3.select(this).classed('dragging', true);
 			};
-			var ondragged = function(d) {
-				var dx = dxfactor * d3.event.dx, dy = dyfactor * d3.event.dy;
-				for (var i=0; i<d.length; ++i) {
-//					d[i][0] += Math.round(dx);
-//					d[i][1] += Math.round(dy);
+			var ondragged = function(partial) {
+				var dx = Math.round(dxfactor * d3.event.dx);
+				var dy = Math.round(dyfactor * d3.event.dy);
+				partial['birth'] += dx;
+				for (var i=0; i<partial['peaks'].length; ++i) {
+					partial['peaks'][i]['freq'] += Math.round(dy);
 				}
-//				d3.select(this)
-//					.attr('d', line);
+				d3.select(this)
+					.attr('d', makelinefunc);
 			};
-			var ondragended = function(d) {
+			var ondragended = function(partial) {
 				d3.select(this).classed('dragging', false);
 			};
 
@@ -111,13 +119,6 @@ app.directive('soundMagic', function($window) {
 					.attr('y', 0)
 					.attr('width', w)
 					.attr('height', h);
-
-			var makelinefunc = function(partial) {
-				var line = d3.svg.line()
-					.x(function(d, i) { return xscale(partial['birth'] + i); })
-					.y(function(d) { return yscale(d['freq']); });
-				return line(partial['peaks']);
-			};
 
 			// Dealing with data
 			svg.append('g')

@@ -59,27 +59,92 @@ app.directive('soundMagic', function($window) {
 			}
 		};
 		var plotPartials = function(canvas, partials, sampleRate, spectrogram) {
-			var context = canvas.getContext('2d');
-			var width = canvas.width;
-			var height = canvas.height;
-			var xfactor = width/spectrogram.length;
-			var yfactor = 2.0 * height/sampleRate;
-			_(partials)
-			.each(function(partial, idx, collection) {
-				var birth = partial['birth'];
-				var firstFreq = partial['peaks'][0]['freq'];
-				context.moveTo(birth*xfactor, height-firstFreq*yfactor);
+			// Setup
+			var margin = { top: 20, right: 40, bottom: 20, left: 40 };
+			var w = 960 - margin.left - margin.right;
+			var h = 500 - margin.top - margin.bottom;
 
-				_(partial['peaks'])
-				.rest()
-				.each(function(peak, pidx) {
-					var freq = peak['freq'];
-					context.lineTo((birth+pidx)*xfactor, height-freq*yfactor);
-				});
-			});
-			context.lineWidth = 1;
-			context.strokeStyle = "rgb(0,0,200)";
-			context.stroke();
+			var svg = d3.select(canvas)
+						.attr('width', w + margin.left + margin.right)
+						.attr('height', h + margin.top + margin.bottom)
+						.append('g')
+						.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+			var xscale = d3.scale.linear()
+								.domain([0, spectrogram.length])
+								.range([0, w]);
+			var yscale = d3.scale.linear()
+								.domain([0, sampleRate*0.5])
+								.range([h, 0]);
+			//HACK: get scaling factors
+			var dxfactor = 1.0/(xscale(2)-xscale(1));
+			var dyfactor = 1.0/(yscale(2)-yscale(1));
+
+			// Behaviours
+			var ondragstarted = function(d) {
+				d3.event.sourceEvent.stopPropagation();
+				d3.select(this).classed('dragging', true);
+			};
+			var ondragged = function(d) {
+				var dx = dxfactor * d3.event.dx, dy = dyfactor * d3.event.dy;
+				for (var i=0; i<d.length; ++i) {
+//					d[i][0] += Math.round(dx);
+//					d[i][1] += Math.round(dy);
+				}
+//				d3.select(this)
+//					.attr('d', line);
+			};
+			var ondragended = function(d) {
+				d3.select(this).classed('dragging', false);
+			};
+
+			var drag = d3.behavior.drag()
+				.origin(function(d) { return d; })
+				.on('dragstart', ondragstarted)
+				.on('drag', ondragged)
+				.on('dragend', ondragended);
+
+			svg.append('clipPath')
+					.attr('id', 'chart-area')
+				.append('rect')
+					.attr('x', 0)
+					.attr('y', 0)
+					.attr('width', w)
+					.attr('height', h);
+
+			var makelinefunc = function(partial) {
+				var line = d3.svg.line()
+					.x(function(d, i) { return xscale(partial['birth'] + i); })
+					.y(function(d) { return yscale(d['freq']); });
+				return line(partial['peaks']);
+			};
+
+			// Dealing with data
+			svg.append('g')
+				.selectAll('path')
+					.data(partials)
+				.enter().append('path')
+					.attr('class', 'line')
+					.attr('d', makelinefunc)
+					.call(drag);
+
+			var xaxis = d3.svg.axis()
+							.scale(xscale)
+							.orient('bottom')
+							.ticks(5);
+			var yaxis = d3.svg.axis()
+							.scale(yscale)
+							.orient('left')
+							.ticks(5)
+							.tickFormat(d3.format('s'));
+
+			svg.append('g')
+				.attr('class', 'axis')
+				.attr('transform', 'translate(0,'+h+')')
+				.call(xaxis);
+			svg.append('g')
+				.attr('class', 'axis')
+				.call(yaxis);
 		};
 
 		var makePlayback = function(btn, buffer, sampleRate) {
@@ -152,21 +217,20 @@ app.directive('soundMagic', function($window) {
 			console.log(e);
 		});
 
+		var SVGNS = "http://www.w3.org/2000/svg";
 		var timeDomainCanvas = document.createElement('canvas');
 		timeDomainCanvas.style.width = '100%';
 		timeDomainCanvas.style.height = '9em';
 		var spectrogramCanvas = document.createElement('canvas');
 		spectrogramCanvas.style.width = '100%';
 		spectrogramCanvas.style.height = '9em';
-		var partialsCanvas = document.createElement('canvas');
-		partialsCanvas.style.width = '100%';
-		partialsCanvas.style.height = '9em';
+		var partialsPlot = document.createElementNS(SVGNS, 'svg');
 		var playbackBtn = document.createElement('button');
 		playbackBtn.innerText = 'Play';
 
 		element.append(timeDomainCanvas);
 		element.append(spectrogramCanvas);
-		element.append(partialsCanvas);
+		element.append(partialsPlot);
 		element.append(playbackBtn);
 
 		soundAsset.decodeToBuffer(function(buffer) {
@@ -185,17 +249,14 @@ app.directive('soundMagic', function($window) {
 				audioBuffer = mqAudio.synthesize(partials, fftsize, sampleRate);
 
 				// Draw waveform
-//				plotWaveform(timeDomainCanvas, buffer);
+				plotWaveform(timeDomainCanvas, buffer);
 				// Draw spectrogram
-//				plotSpectrogram(spectrogramCanvas, spectrogram);
+				plotSpectrogram(spectrogramCanvas, spectrogram);
 				// Draw partials
-				plotPartials(partialsCanvas, partials, sampleRate, spectrogram);
+				plotPartials(partialsPlot, partials, sampleRate, spectrogram);
 
 				// Create playback button
 				makePlayback(playbackBtn, audioBuffer, sampleRate);
-				// Plot the reconstructed waveform
-				plotWaveform(timeDomainCanvas, audioBuffer);
-				plotSpectrogram(spectrogramCanvas, getSpectrogram(audioBuffer, sampleRate, fftsize));
 			}
 		});
 	}

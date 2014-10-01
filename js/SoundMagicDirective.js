@@ -148,7 +148,7 @@ app.directive('soundMagic', function($window) {
 				.call(yaxis);
 		};
 
-		var makePlayback = function(btn, buffer, sampleRate) {
+		var makePlayback = function(btn, partials, fftsize, sampleRate) {
 			// WebAudio stuff
 			if (!('audioContext' in scope)) {
 				if (typeof AudioContext !== "undefined") {
@@ -160,14 +160,16 @@ app.directive('soundMagic', function($window) {
 				}
 			}
 
-			var len = buffer.length;
-			var webAudioBuf = scope.audioContext.createBuffer(1, len, sampleRate);
-			var arr = webAudioBuf.getChannelData(0);
-			for (var i=0; i<len; ++i) {
-				arr[i] = buffer[i];
-			}
-
 			btn.onclick = function() {
+				var buffer = mqAudio.synthesize(partials, fftsize, sampleRate);
+
+				var len = buffer.length;
+				var webAudioBuf = scope.audioContext.createBuffer(1, len, sampleRate);
+				var arr = webAudioBuf.getChannelData(0);
+				for (var i=0; i<len; ++i) {
+					arr[i] = buffer[i];
+				}
+
 				var sourceNode = scope.audioContext.createBufferSource();
 				sourceNode.buffer = webAudioBuf;
 				sourceNode.connect(scope.audioContext.destination);
@@ -243,11 +245,9 @@ app.directive('soundMagic', function($window) {
 				var spectrogram = getSpectrogram(buffer, sampleRate, fftsize);
 				var peaks;
 				var partials;
-				var audioBuffer;
 
 				peaks = mqAudio.detectPeaks(spectrogram, sampleRate, 0.00001, maxPeaks);
 				partials = mqAudio.trackPartials(peaks);
-				audioBuffer = mqAudio.synthesize(partials, fftsize, sampleRate);
 
 				// Draw waveform
 				plotWaveform(timeDomainCanvas, buffer);
@@ -257,7 +257,7 @@ app.directive('soundMagic', function($window) {
 				plotPartials(partialsPlot, partials, sampleRate, spectrogram);
 
 				// Create playback button
-				makePlayback(playbackBtn, audioBuffer, sampleRate);
+				makePlayback(playbackBtn, partials, fftsize, sampleRate);
 			}
 		});
 	}

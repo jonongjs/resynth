@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>D3 Page Template</title>
+<script type="text/javascript" src="js/vendor/d3.min.js"></script>
+<style type="text/css">
+	.bar {
+		display: inline-block;
+		width: 20px;
+		background-color: teal;
+		margin-right: 5px;
+	}
+
+	#circles circle {
+		fill: olive;
+		stroke: orange;
+	}
+	#circles circle:hover {
+		fill: red;
+		stroke: blue;
+	}
+
+	.axis path, .axis line {
+		 fill: none;
+		 stroke: black;
+		 shape-rendering: crispEdges;
+	}
+</style>
+</head>
+<body>
+<div id="datavis"></div>
+
+<script type="text/javascript">
+	d3.select('body')
+		.append('p')
+		.text('hello world');
+
+	var dataset = new Float64Array(5);
+	dataset[0] = 1;
+	dataset[1] = 2;
+	dataset[2] = 4;
+	dataset[3] = 8;
+	dataset[4] = 16;
+
+	var w = 500, h = 50;
+
+	d3.select('#datavis')
+		.selectAll('p')
+		.data(dataset)
+		.enter()
+		.append('p')
+		.classed('bar', true)
+		.style('height', function(d) {
+			return (d*5) + "px";
+		});
+
+	var svg = d3.select('body')
+				.append('svg')
+				.attr('width', w)
+				.attr('height', h);
+	var circles = svg.selectAll('circle')
+					.data(dataset)
+					.enter()
+					.append('circle')
+					.attr('cx', function(d, i) { return i*50 + 25; })
+					.attr('cy', h/2)
+					.attr('r', function(d) { return d; });
+
+
+
+	var dataset2 = [
+		[ 0, 0 ],
+		[ 10, 200 ],
+		[ 30, 40 ],
+		[ 100, 200 ],
+		[ 89, 80 ],
+		[ 82, 250 ],
+		[ 329, 99 ],
+	];
+	var margin = { top: 20, right: 40, bottom: 20, left: 40 };
+	var w2 = 960 - margin.left - margin.right;
+	var h2 = 500 - margin.top - margin.bottom;
+	var svg2 = d3.select('body')
+				.append('svg')
+				.attr('width', w2 + margin.left + margin.right)
+				.attr('height', h2 + margin.top + margin.bottom)
+				.append('g')
+				.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+	var xscale = d3.scale.linear()
+						.domain([0, d3.max(dataset2, function(d) { return d[0]; })])
+						.range([0, w2]);
+	var yscale = d3.scale.linear()
+						.domain([0, d3.max(dataset2, function(d) { return d[1]; })])
+						.range([h2, 0]);
+
+	svg2.append('clipPath')
+		.attr('id', 'chart-area')
+		.append('rect')
+		.attr('x', 0)
+		.attr('y', 0)
+		.attr('width', w2)
+		.attr('height', h2);
+
+	svg2.append('g')
+		.attr('id', 'circles')
+		.attr('clip-path', 'url(#chart-area)')
+		.selectAll('circle')
+		.data(dataset2)
+		.enter()
+		.append('circle')
+		.attr({
+			cx: function(d) { return xscale(d[0]); },
+			cy: function(d) { return yscale(d[1]); },
+			r: 5
+		});
+	var xaxis = d3.svg.axis()
+					.scale(xscale)
+					.orient('bottom')
+					.ticks(5);
+	var yaxis = d3.svg.axis()
+					.scale(yscale)
+					.orient('left')
+					.ticks(5);
+
+	svg2.append('g')
+		.attr('class', 'axis')
+		.attr('transform', 'translate(0,'+h2+')')
+		.call(xaxis);
+	svg2.append('g')
+		.attr('class', 'axis')
+		.call(yaxis);
+</script>
+</body>
+</html>

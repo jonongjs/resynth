@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>D3 Page Template</title>
+<script type="text/javascript" src="js/vendor/d3.min.js"></script>
+<style type="text/css">
+	.bar {
+		display: inline-block;
+		width: 20px;
+		background-color: teal;
+		margin-right: 5px;
+	}
+
+	#circles circle {
+		fill: olive;
+		stroke: orange;
+	}
+	#circles circle:hover {
+		fill: red;
+		stroke: blue;
+	}
+
+	.axis path, .axis line {
+		 fill: none;
+		 stroke: black;
+		 shape-rendering: crispEdges;
+	}
+
+	.line {
+		fill: none;
+		stroke: steelblue;
+		stroke-width: 3px;
+	}
+	.line:hover {
+		stroke: red;
+		stroke-width: 3.5px;
+	}
+</style>
+</head>
+<body>
+<div id="datavis"></div>
+
+<script type="text/javascript">
+	var dataset = [
+		[ 5, 60 ],
+		[ 10, 200 ],
+		[ 30, 100 ],
+		[ 82, 250 ],
+		[ 89, 100 ],
+		[ 100, 200 ],
+		[ 111, 50 ],
+		[ 150, 99 ],
+	];
+	var dataset2 = [
+		[ 35, 60 ],
+		[ 45, 12 ],
+		[ 55, 50 ],
+		[ 65, 70 ],
+		[ 75, 44 ],
+	];
+	var bigset = [ dataset, dataset2 ];
+
+	// Setup
+	var margin = { top: 20, right: 40, bottom: 20, left: 40 };
+	var w = 960 - margin.left - margin.right;
+	var h = 500 - margin.top - margin.bottom;
+
+	var svg = d3.select('#datavis')
+				.append('svg')
+				.attr('width', w + margin.left + margin.right)
+				.attr('height', h + margin.top + margin.bottom)
+				.append('g')
+				.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+	var xscale = d3.scale.linear()
+						.domain([0, d3.max(dataset, function(d) { return d[0]; })])
+						.range([0, w]);
+	var yscale = d3.scale.linear()
+						.domain([0, d3.max(dataset, function(d) { return d[1]; })])
+						.range([h, 0]);
+
+	// Behaviours
+	var dragstarted = function(d) {
+		d3.event.sourceEvent.stopPropagation();
+		d3.select(this).classed('dragging', true);
+	};
+	var dragged = function(d) {
+		//HACK: get scaling factors
+		var xfactor = 1.0/(xscale(2)-xscale(1));
+		var yfactor = 1.0/(yscale(2)-yscale(1));
+		var dx = xfactor * d3.event.dx, dy = yfactor * d3.event.dy;
+		for (var i=0; i<d.length; ++i) {
+			d[i][0] += dx;
+			d[i][1] += dy;
+		}
+		d3.select(this)
+			.attr('d', line);
+	};
+	var dragended = function(d) {
+		d3.select(this).classed('dragging', false);
+	};
+
+	var drag = d3.behavior.drag()
+		.origin(function(d) { return d; })
+		.on('dragstart', dragstarted)
+		.on('drag', dragged)
+		.on('dragend', dragended);
+
+	svg.append('clipPath')
+		.attr('id', 'chart-area')
+		.append('rect')
+		.attr('x', 0)
+		.attr('y', 0)
+		.attr('width', w)
+		.attr('height', h);
+
+	var line = d3.svg.line()
+					.x(function(d) { return xscale(d[0]); })
+					.y(function(d) { return yscale(d[1]); });
+
+	// Dealing with data
+	svg.append('g')
+		.selectAll('path')
+		.data(bigset)
+		.enter()
+		.append('path')
+		.attr('class', 'line')
+		.attr('d', line)
+		.call(drag);
+
+//	svg.append('path')
+//		.datum(dataset)
+//		.attr('class', 'line')
+//		.attr('d', line);
+//
+//	svg.append('path')
+//		.datum(dataset2)
+//		.attr('class', 'line')
+//		.attr('d', line);
+
+//	svg.append('g')
+//		.attr('id', 'circles')
+//		.attr('clip-path', 'url(#chart-area)')
+//		.selectAll('circle')
+//		.data(dataset)
+//		.enter()
+//		.append('circle')
+//		.attr({
+//			cx: function(d) { return xscale(d[0]); },
+//			cy: function(d) { return yscale(d[1]); },
+//			r: 5
+//		});
+	var xaxis = d3.svg.axis()
+					.scale(xscale)
+					.orient('bottom')
+					.ticks(5);
+	var yaxis = d3.svg.axis()
+					.scale(yscale)
+					.orient('left')
+					.ticks(5);
+
+	svg.append('g')
+		.attr('class', 'axis')
+		.attr('transform', 'translate(0,'+h+')')
+		.call(xaxis);
+	svg.append('g')
+		.attr('class', 'axis')
+		.call(yaxis);
+
+</script>
+</body>
+</html>

@@ -6,30 +6,39 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Resynth</title>
     <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/font-awesome.min.css" rel="stylesheet">
     <link href="css/app.css" rel="stylesheet">
     <link href="css/data.css" rel="stylesheet">
   </head>
 
   <body>
-    <div ng-controller="MainController" drag-upload class="tab-container">
+    <div ng-controller="MainController" drag-upload>
+		<input type="file" id="inputfile" class="inputfile" input-change="addFile(f)"/>
 		<div class="drag-upload">Drag here!</div>
 
-		<div id="tab-bar">
-			<ul ng-show="tabs.length > 0">
-				<li ng-class="{active: tab==currentTab}"  ng-repeat="tab in tabs" ng-click="setTab(tab)">{{tab.name}}</li>
-			</ul>
-
-			<div class="button-upload" button-upload>
-				<input type="file" id="input-file" class="input-file" input-change="addFile(f)"/>
-				<button ng-click="buttonClicked()">+</button>
-			</div>
-		</div>
-
-		<div>
-			<div ng-repeat="tab in tabs" ng-show="currentTab == tab" ng-controller="TabController" class="tab">
+		<tabset>
+			<tab>
+				<tab-heading>Resynth</tab-heading>
+				Get started by clicking on the <i class="fa fa-plus-square"></i>
+			</tab>
+			<tab ng-repeat="tab in tabs" heading="{{tab.name}}" active="tab.active" ng-controller="TabController" class="tab">
+				<div class="btn-group-vertical" id="toolbar">
+					<label class="btn btn-primary" ng-model="opModel" btn-radio="'movefree'" title="Move selection">
+						<i class="fa fa-fw fa-arrows"></i>
+					</label>
+					<label class="btn btn-primary" ng-model="opModel" btn-radio="'scaleh'" title="Scale selection horizontally">
+						<i class="fa fa-fw fa-arrows-h"></i>
+					</label>
+					<label class="btn btn-primary" ng-model="opModel" btn-radio="'scalev'" title="Scale selection vertically">
+						<i class="fa fa-fw fa-arrows-v"></i>
+					</label>
+				</div>
 				<div sound-magic fftsize="1024"></div>
-			</div>
-		</div>
+			</tab>
+			<tab select="buttonClicked()" button-upload>
+				<tab-heading><i class="fa fa-plus-square"></i></tab-heading>
+			</tab>
+		</tabset>
     </div>
 
     <script src="js/vendor/angular.min.js"></script>

@@ -34,3 +34,9 @@ svg {
 	stroke: red;
 	stroke-width: 3.5px;
 }
+
+.dragging {
+	stroke: red;
+	stroke-opacity: 0.8;
+	stroke-width: 3.5px;
+}

@@ -1,18 +1,18 @@
 app.controller('MainController', ['$scope', '$rootScope', function($scope, $rootScope) {
 
 	$scope.tabs = [];
+	$scope.opModel = 'movefree';
 
-	$scope.currentTab;
-
-	$scope.setTab = function(tab) {
-		$scope.currentTab = tab;
+	$scope.setAllTabsInactive = function() {
+		angular.forEach($scope.tabs, function(tab) {
+			tab.active = false;
+		});
 	};
 
 	$scope.addFile = function(f) {
+		$scope.setAllTabsInactive();
+		f['active'] = true;
 		$scope.tabs.push(f);
-		if (!$scope.currentTab) {
-			$scope.setTab(f);
-		}
 	};
 
 }]);

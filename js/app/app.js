@@ -1,4 +1,4 @@
-var app = angular.module('resynthApp', []);
+var app = angular.module('resynthApp', ['ui.bootstrap']);
  
 app.run(function($rootScope) {
 

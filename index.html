@@ -44,10 +44,10 @@
 						</div>
 					</label>
 				</div>
-				<div sound-magic fftsize="1024"></div>
 				<button ng-class="{'btn':true, 'btn-success':!isPlaying, 'btn-danger':isPlaying}" tooltip="Play" playback>
 					<i ng-class="{'fa':true, 'fa-play':!isPlaying, 'fa-stop':isPlaying}"></i>
 				</button>
+				<div sound-magic fftsize="1024"></div>
 			</tab>
 			<tab select="buttonClicked()" button-upload>
 				<tab-heading tooltip="Add file" tooltip-placement="bottom">
@@ -57,6 +57,22 @@
 		</tabset>
     </div>
 
+	<script type="text/ng-template" id="analysisParams.html">
+        <div class="modal-header">
+            <h3 class="modal-title">Analysis Parameters</h3>
+        </div>
+        <div class="modal-body">
+			<label>Threshold: <input type="number" class="form-control" name="threshold" ng-model="params.threshold" min="0"></label>
+			<label>Max peaks: <input type="number" class="form-control" name="maxPeaks" ng-model="params.maxPeaks" min="1"></label>
+			<label>Match delta: <input type="number" class="form-control" name="matchDelta" ng-model="params.matchDelta" min="1"></label>
+			<label>Window size: <input type="number" class="form-control" name="windowSize" ng-model="params.windowSize"min="1"></label>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" ng-click="ok()">OK</button>
+            <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+        </div>
+    </script>
+
     <script src="js/vendor/angular.min.js"></script>
     <script src="js/vendor/ui-bootstrap-tpls-0.11.0.min.js"></script>
     <script src="js/app/app.js"></script>
@@ -64,6 +80,7 @@
 
     <script src="js/app/MainController.js"></script>
     <script src="js/app/TabController.js"></script>
+    <script src="js/app/AnalysisParamsController.js"></script>
     <script src="js/ButtonUploadDirective.js"></script>
     <script src="js/DragUploadDirective.js"></script>
     <script src="js/InputChangeDirective.js"></script>

@@ -179,52 +179,54 @@ app.directive('soundMagic', function($window) {
 		};
 
 
-		var soundFile = scope.tab.file;
-		var soundAsset = AV.Asset.fromFile(soundFile);
-		soundAsset.on('error', function(e) {
-			console.log(e);
-		});
+		scope.processAudio = function() {
+			var soundFile = scope.tab.file;
+			var soundAsset = AV.Asset.fromFile(soundFile);
+			soundAsset.on('error', function(e) {
+				console.log(e);
+			});
 
-		var SVGNS = "http://www.w3.org/2000/svg";
-		var timeDomainCanvas = document.createElement('canvas');
-		timeDomainCanvas.style.width = '100%';
-		timeDomainCanvas.style.height = '9em';
-		var spectrogramCanvas = document.createElement('canvas');
-		spectrogramCanvas.style.width = '100%';
-		spectrogramCanvas.style.height = '9em';
-		var partialsPlot = document.createElementNS(SVGNS, 'svg');
+			var SVGNS = "http://www.w3.org/2000/svg";
+			var timeDomainCanvas = document.createElement('canvas');
+			timeDomainCanvas.style.width = '100%';
+			timeDomainCanvas.style.height = '9em';
+			var spectrogramCanvas = document.createElement('canvas');
+			spectrogramCanvas.style.width = '100%';
+			spectrogramCanvas.style.height = '9em';
+			var partialsPlot = document.createElementNS(SVGNS, 'svg');
 
-		element.append(timeDomainCanvas);
-		element.append(spectrogramCanvas);
-		element.append(partialsPlot);
+			element.append(timeDomainCanvas);
+			element.append(spectrogramCanvas);
+			element.append(partialsPlot);
 
-		soundAsset.decodeToBuffer(function(buffer) {
-			if (buffer.length > 0) {
-				var fftsize = parseInt(attrs.fftsize);
-				var maxPeaks = 60;
-				var sampleRate = soundAsset.format.sampleRate;
+			soundAsset.decodeToBuffer(function(buffer) {
+				if (buffer.length > 0) {
+					var fftsize = parseInt(attrs.fftsize);
+					var maxPeaks = 60;
+					var sampleRate = soundAsset.format.sampleRate;
 
-				var spectrogram = getSpectrogram(buffer, sampleRate, fftsize);
-				var peaks;
-				var partials;
+					var spectrogram = getSpectrogram(buffer, sampleRate, fftsize);
+					var peaks;
+					var partials;
 
-				peaks = mqAudio.detectPeaks(spectrogram, sampleRate, 0.00001, maxPeaks);
-				partials = mqAudio.trackPartials(peaks);
+					peaks = mqAudio.detectPeaks(spectrogram, sampleRate, 0.00001, maxPeaks);
+					partials = mqAudio.trackPartials(peaks);
 
-				// Draw waveform
-				plotWaveform(timeDomainCanvas, buffer);
-				// Draw spectrogram
-				plotSpectrogram(spectrogramCanvas, spectrogram);
-				// Draw partials
-				plotPartials(partialsPlot, partials, sampleRate, spectrogram);
+					// Draw waveform
+					plotWaveform(timeDomainCanvas, buffer);
+					// Draw spectrogram
+					plotSpectrogram(spectrogramCanvas, spectrogram);
+					// Draw partials
+					plotPartials(partialsPlot, partials, sampleRate, spectrogram);
 
-				// Create playback parameters
-				scope.sampleRate = sampleRate;
-				scope.synthesize = function() {
-					return mqAudio.synthesize(partials, fftsize, sampleRate);
-				};
-			}
-		});
+					// Create playback parameters
+					scope.sampleRate = sampleRate;
+					scope.synthesize = function() {
+						return mqAudio.synthesize(partials, fftsize, sampleRate);
+					};
+				}
+			});
+		};
 	}
 
 });

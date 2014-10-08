@@ -23,23 +23,36 @@
 			</tab>
 			<tab ng-repeat="tab in tabs" heading="{{tab.title}}" active="tab.active" ng-controller="TabController" class="tab">
 				<div class="btn-group-vertical" id="toolbar">
-					<label class="btn btn-primary" ng-model="opModel" btn-radio="'movefree'" title="Move selection">
+					<label class="btn btn-primary" ng-model="opModel" btn-radio="'select'">
+						<div tooltip-placement="right" tooltip="Make selection">
+						<i class="fa fa-fw fa-pencil-square-o"></i>
+						</div>
+					</label>
+					<label class="btn btn-primary" ng-model="opModel" btn-radio="'movefree'">
+						<div tooltip-placement="right" tooltip="Move selection">
 						<i class="fa fa-fw fa-arrows"></i>
+						</div>
 					</label>
-					<label class="btn btn-primary" ng-model="opModel" btn-radio="'scaleh'" title="Scale selection horizontally">
+					<label class="btn btn-primary" ng-model="opModel" btn-radio="'scaleh'">
+						<div tooltip-placement="right" tooltip="Scale selection horizontally">
 						<i class="fa fa-fw fa-arrows-h"></i>
+						</div>
 					</label>
-					<label class="btn btn-primary" ng-model="opModel" btn-radio="'scalev'" title="Scale selection vertically">
+					<label class="btn btn-primary" ng-model="opModel" btn-radio="'scalev'">
+						<div tooltip-placement="right" tooltip="Scale selection vertically">
 						<i class="fa fa-fw fa-arrows-v"></i>
+						</div>
 					</label>
 				</div>
 				<div sound-magic fftsize="1024"></div>
-				<button ng-class="{'btn':true, 'btn-success':!isPlaying, 'btn-danger':isPlaying}" title="Play" playback>
+				<button ng-class="{'btn':true, 'btn-success':!isPlaying, 'btn-danger':isPlaying}" tooltip="Play" playback>
 					<i ng-class="{'fa':true, 'fa-play':!isPlaying, 'fa-stop':isPlaying}"></i>
 				</button>
 			</tab>
 			<tab select="buttonClicked()" button-upload>
-				<tab-heading><i class="fa fa-plus-square"></i></tab-heading>
+				<tab-heading tooltip="Add file" tooltip-placement="bottom">
+					<i class="fa fa-plus-square"></i>
+				</tab-heading>
 			</tab>
 		</tabset>
     </div>

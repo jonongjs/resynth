@@ -1,7 +1,6 @@
 app.controller('MainController', ['$scope', '$rootScope', function($scope, $rootScope) {
 
 	$scope.tabs = [];
-	$scope.opModel = 'movefree';
 
 	$scope.audioContext = null;
 	// WebAudio stuff

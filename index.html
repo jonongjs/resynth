@@ -21,7 +21,7 @@
 				<tab-heading>Resynth</tab-heading>
 				Get started by clicking on the <i class="fa fa-plus-square"></i>
 			</tab>
-			<tab ng-repeat="tab in tabs" heading="{{tab.name}}" active="tab.active" ng-controller="TabController" class="tab">
+			<tab ng-repeat="tab in tabs" heading="{{tab.title}}" active="tab.active" ng-controller="TabController" class="tab">
 				<div class="btn-group-vertical" id="toolbar">
 					<label class="btn btn-primary" ng-model="opModel" btn-radio="'movefree'" title="Move selection">
 						<i class="fa fa-fw fa-arrows"></i>
@@ -34,6 +34,9 @@
 					</label>
 				</div>
 				<div sound-magic fftsize="1024"></div>
+				<button ng-class="{'btn':true, 'btn-success':!isPlaying, 'btn-danger':isPlaying}" title="Play" playback>
+					<i ng-class="{'fa':true, 'fa-play':!isPlaying, 'fa-stop':isPlaying}"></i>
+				</button>
 			</tab>
 			<tab select="buttonClicked()" button-upload>
 				<tab-heading><i class="fa fa-plus-square"></i></tab-heading>
@@ -51,6 +54,7 @@
     <script src="js/ButtonUploadDirective.js"></script>
     <script src="js/DragFileDirective.js"></script>
     <script src="js/InputChangeDirective.js"></script>
+    <script src="js/PlaybackDirective.js"></script>
     <script src="js/SoundMagicDirective.js"></script>
 
 	<script src="js/vendor/audiolib.js"></script>

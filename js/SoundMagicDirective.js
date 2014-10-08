@@ -148,41 +148,6 @@ app.directive('soundMagic', function($window) {
 				.call(yaxis);
 		};
 
-		var makePlayback = function(btn, partials, fftsize, sampleRate) {
-			// WebAudio stuff
-			if (!('audioContext' in scope)) {
-				if (typeof AudioContext !== "undefined") {
-					scope.audioContext = new AudioContext();
-				} else if (typeof webkitAudioContext !== "undefined") {
-					scope.audioContext = new webkitAudioContext();
-				} else {
-					throw new Error('AudioContext not supported.');
-				}
-			}
-
-			btn.onclick = function() {
-				var buffer = mqAudio.synthesize(partials, fftsize, sampleRate);
-
-				var len = buffer.length;
-				var webAudioBuf = scope.audioContext.createBuffer(1, len, sampleRate);
-				var arr = webAudioBuf.getChannelData(0);
-				for (var i=0; i<len; ++i) {
-					arr[i] = buffer[i];
-				}
-
-				var sourceNode = scope.audioContext.createBufferSource();
-				sourceNode.buffer = webAudioBuf;
-				sourceNode.connect(scope.audioContext.destination);
-				sourceNode.onended = function() {
-					btn.innerText = 'Play';
-					btn.disabled = false;
-				};
-				sourceNode.start();
-				btn.innerText = 'Playing';
-				btn.disabled = true;
-			};
-		};
-
 		var getSpectrogram = function(buffer, sampleRate, fftsize) {
 			var spectrogram = [];
 			var fft = audioLib.FFT(sampleRate, fftsize);
@@ -214,7 +179,7 @@ app.directive('soundMagic', function($window) {
 		};
 
 
-		var soundFile = scope.tab;
+		var soundFile = scope.tab.file;
 		var soundAsset = AV.Asset.fromFile(soundFile);
 		soundAsset.on('error', function(e) {
 			console.log(e);
@@ -228,13 +193,10 @@ app.directive('soundMagic', function($window) {
 		spectrogramCanvas.style.width = '100%';
 		spectrogramCanvas.style.height = '9em';
 		var partialsPlot = document.createElementNS(SVGNS, 'svg');
-		var playbackBtn = document.createElement('button');
-		playbackBtn.innerText = 'Play';
 
 		element.append(timeDomainCanvas);
 		element.append(spectrogramCanvas);
 		element.append(partialsPlot);
-		element.append(playbackBtn);
 
 		soundAsset.decodeToBuffer(function(buffer) {
 			if (buffer.length > 0) {
@@ -256,8 +218,11 @@ app.directive('soundMagic', function($window) {
 				// Draw partials
 				plotPartials(partialsPlot, partials, sampleRate, spectrogram);
 
-				// Create playback button
-				makePlayback(playbackBtn, partials, fftsize, sampleRate);
+				// Create playback parameters
+				scope.sampleRate = sampleRate;
+				scope.synthesize = function() {
+					return mqAudio.synthesize(partials, fftsize, sampleRate);
+				};
 			}
 		});
 	}

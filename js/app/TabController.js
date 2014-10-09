@@ -2,10 +2,10 @@ app.controller('TabController', ['$scope', '$rootScope', '$modal', '$log', funct
 
 	$scope.opModel = 'movefree';
 	$scope.params = {
-		threshold: 0.0001,
+		threshold: 0.00001,
 		maxPeaks: 60,
 		matchDelta: 200,
-		windowSize: 4096
+		windowSize: 1024
 	};
 
 	var modalInstance = $modal.open({

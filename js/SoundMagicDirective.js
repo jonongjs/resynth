@@ -201,16 +201,15 @@ app.directive('soundMagic', function($window) {
 
 			soundAsset.decodeToBuffer(function(buffer) {
 				if (buffer.length > 0) {
-					var fftsize = parseInt(attrs.fftsize);
-					var maxPeaks = 60;
+					var fftsize = scope.params.windowSize;
 					var sampleRate = soundAsset.format.sampleRate;
 
 					var spectrogram = getSpectrogram(buffer, sampleRate, fftsize);
 					var peaks;
 					var partials;
 
-					peaks = mqAudio.detectPeaks(spectrogram, sampleRate, 0.00001, maxPeaks);
-					partials = mqAudio.trackPartials(peaks);
+					peaks = mqAudio.detectPeaks(spectrogram, sampleRate, scope.params.threshold, scope.params.maxPeaks);
+					partials = mqAudio.trackPartials(peaks, scope.params.matchDelta);
 
 					// Draw waveform
 					plotWaveform(timeDomainCanvas, buffer);

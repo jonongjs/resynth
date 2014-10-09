@@ -11,8 +11,6 @@
 	var sin = Math.sin;
 	var PI  = Math.PI;
 
-	var matchingThreshold = 200; //TODO: parameterize
-
 	// Detect peaks in a amplitude spectrogram.
 	// Inputs:
 	// - spectrogram: 2D array, 1st axis as time, 2nd axis as frequency bins,
@@ -61,7 +59,7 @@
 
 	// Finds the index of a candidate peak for the given frequency.
 	// Assumes that nextPeaks is an array of peaks sorted by ascending freq.
-	var findCandidateIndex = function(curPeak, nextPeaks) {
+	var findCandidateIndex = function(curPeak, nextPeaks, matchingThreshold) {
 		var candidates = [];
 		var m = _.sortedIndex(nextPeaks, curPeak); // Index around which to search
 		if (m < nextPeaks.length && abs(nextPeaks[m]-curPeak) <= matchingThreshold) {
@@ -85,9 +83,10 @@
 	// Track partials from detected peaks
 	// Inputs:
 	// - peaks: 2D array, 1st axis as time, 2nd axis as peaks
+	// - matchingThreshold: max delta for a frequency match
 	// Outputs:
 	// - 
-	exports.trackPartials = function(peaksFrames, maxPeaks) {
+	exports.trackPartials = function(peaksFrames, matchingThreshold) {
 		// Track:
 		//   { birth: frameNum, peaks: [peak1, peak2, ... peakN]
 		// Perform McAulay-Quatieri frame-to-frame peak matching 
@@ -114,7 +113,7 @@
 				 // Look for a matching peak for this track
 				 var curFreq = _.last(track.peaks)['freq'];
 				 var nextFreqs = _(nextPeaks).pluck('freq').value();
-				 var candidateIdx = findCandidateIndex(curFreq, nextFreqs);
+				 var candidateIdx = findCandidateIndex(curFreq, nextFreqs, matchingThreshold);
 
 				 if (candidateIdx == null) {
 					 // No candidates within matchingThreshold, treat as death
@@ -131,7 +130,8 @@
 															.value();
 					 var possibleTrackIdx = findCandidateIndex(
 						 						nextFreqs[candidateIdx],
-												unmatchedTrackFreqs);
+												unmatchedTrackFreqs,
+												matchingThreshold);
 
 					 if (unmatchedTrackFreqs[possibleTrackIdx] == curFreq) {
 						 // Definitive match (no other tracks to match this candidate)

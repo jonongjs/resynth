@@ -21,7 +21,8 @@
 				<tab-heading>Resynth</tab-heading>
 				Get started by clicking on the <i class="fa fa-plus-square"></i>
 			</tab>
-			<tab ng-repeat="tab in tabs" heading="{{tab.title}}" active="tab.active" ng-controller="TabController" class="tab">
+			<tab ng-repeat="tab in tabs" active="tab.active" ng-controller="TabController" class="tab">
+				<tab-heading>{{tab.title}} <a href="" ng-click="removeTab($index)"><i class="fa fa-close"></i></a></tab-heading>
 				<div class="btn-group-vertical" id="toolbar">
 					<label class="btn btn-primary" ng-model="opModel" btn-radio="'select'">
 						<div tooltip-placement="right" tooltip="Make selection">

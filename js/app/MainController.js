@@ -27,4 +27,8 @@ app.controller('MainController', ['$scope', '$rootScope', function($scope, $root
 		});
 	};
 
+	$scope.removeTab = function (index) {
+		$scope.tabs.splice(index, 1);
+	};
+
 }]);

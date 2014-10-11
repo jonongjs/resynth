@@ -40,3 +40,12 @@ svg {
 	stroke-opacity: 0.8;
 	stroke-width: 3.5px;
 }
+
+.dragarea {
+	opacity: 0;
+}
+.selectionbox {
+	fill: steelblue;
+	stroke: cornflowerblue;
+	opacity: 0.4;
+}

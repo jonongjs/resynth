@@ -48,7 +48,10 @@
 				<button ng-class="{'btn':true, 'btn-success':!isPlaying, 'btn-danger':isPlaying}" tooltip="Play" playback>
 					<i ng-class="{'fa':true, 'fa-play':!isPlaying, 'fa-stop':isPlaying}"></i>
 				</button>
-				<div sound-magic></div>
+				<div sound-magic>
+					<svg partial-plot>
+					</svg>
+				</div>
 			</tab>
 			<tab select="buttonClicked()" button-upload>
 				<tab-heading tooltip="Add file" tooltip-placement="bottom">
@@ -86,6 +89,7 @@
     <script src="js/DragUploadDirective.js"></script>
     <script src="js/InputChangeDirective.js"></script>
     <script src="js/PlaybackDirective.js"></script>
+    <script src="js/PartialPlotDirective.js"></script>
     <script src="js/SoundMagicDirective.js"></script>
 
 	<script src="js/vendor/audiolib.js"></script>

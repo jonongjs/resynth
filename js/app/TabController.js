@@ -20,7 +20,7 @@ app.controller('TabController', ['$scope', '$rootScope', '$modal', '$log', funct
 
 	modalInstance.result.then(function (params) {
 		// $scope.params has already been modified in the modal dialog
-		$scope.processAudio();
+		$scope.processAudio($scope.plotPartials);
 	}, function () {
 		//$log.info('Modal dismissed at: ' + new Date());
 		//TODO: remove tab

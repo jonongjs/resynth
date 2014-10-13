@@ -41,31 +41,6 @@ app.directive('partialPlot', function($window) {
 				return line(partial['peaks']);
 			};
 
-			// Behaviours
-			var ondragstarted = function(partial) {
-				d3.event.sourceEvent.stopPropagation();
-				d3.select(this).classed('dragging', true);
-			};
-			var ondragged = function(partial) {
-				var dx = Math.round(dxfactor * d3.event.dx);
-				var dy = Math.round(dyfactor * d3.event.dy);
-				partial['birth'] += dx;
-				for (var i=0; i<partial['peaks'].length; ++i) {
-					partial['peaks'][i]['freq'] += Math.round(dy);
-				}
-				d3.select(this)
-					.attr('d', makelinefunc);
-			};
-			var ondragended = function(partial) {
-				d3.select(this).classed('dragging', false);
-			};
-
-			var drag = d3.behavior.drag()
-				.origin(function(d) { return d; })
-				.on('dragstart', ondragstarted)
-				.on('drag', ondragged)
-				.on('dragend', ondragended);
-
 			svg.append('clipPath')
 					.attr('id', 'chart-area')
 				.append('rect')
@@ -114,10 +89,23 @@ app.directive('partialPlot', function($window) {
 				},
 				'movefree': {
 					'dragstart': function(o) {
+						d3.event.sourceEvent.stopPropagation();
+						d3.selectAll('.gmain path.selected').classed('dragging', true);
 					},
 					'drag': function(o) {
+						var dx = Math.round(dxfactor * d3.event.dx);
+						var dy = Math.round(dyfactor * d3.event.dy);
+						d3.selectAll('.gmain path.dragging')
+							.each(function(partial) {
+								partial['birth'] += dx;
+								for (var i=0; i<partial['peaks'].length; ++i) {
+									partial['peaks'][i]['freq'] += Math.round(dy);
+								}
+							})
+							.attr('d', makelinefunc);
 					},
 					'dragend': function(o) {
+						d3.selectAll('.gmain path.dragging').classed('dragging', false);
 					}
 				},
 				'scaleh': {

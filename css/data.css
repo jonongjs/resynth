@@ -30,7 +30,7 @@ svg {
 	stroke: steelblue;
 	stroke-width: 3px;
 }
-.line:hover {
+.line:hover, .selected {
 	stroke: red;
 	stroke-width: 3.5px;
 }
@@ -41,8 +41,11 @@ svg {
 	stroke-width: 3.5px;
 }
 
+.gmain {
+	pointer-events: all;
+}
 .dragarea {
-	opacity: 0;
+	visibility: hidden;
 }
 .selectionbox {
 	fill: steelblue;

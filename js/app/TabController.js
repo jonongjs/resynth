@@ -1,6 +1,6 @@
 app.controller('TabController', ['$scope', '$rootScope', '$modal', '$log', function($scope, $rootScope, $modal, $log) {
 
-	$scope.opModel = 'movefree';
+	$scope.opModel = 'select';
 	$scope.params = {
 		threshold: 0.00001,
 		maxPeaks: 60,

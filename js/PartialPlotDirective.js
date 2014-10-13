@@ -1,6 +1,17 @@
 app.directive('partialPlot', function($window) {
 	return function(scope, element, attrs) {
 
+		var isPartialSelected = function(partial, box) {
+			// Check if one of the points lies in the selection box
+			var birth = partial['birth'];
+			return _(partial['peaks'])
+				.pluck('freq')
+				.any(function(freq, idx, collection) {
+					return box.minFreq <= freq && freq <= box.maxFreq
+						&& box.minFrame <= idx+birth && idx+birth <= box.maxFrame;
+				});
+		};
+
 		var plotPartials = function(canvas, partials, sampleRate, spectrogram) {
 			// Setup
 			var margin = { top: 20, right: 40, bottom: 20, left: 40 };
@@ -63,15 +74,6 @@ app.directive('partialPlot', function($window) {
 					.attr('width', w)
 					.attr('height', h);
 
-			// Dealing with data
-			svg.append('g')
-				.selectAll('path')
-					.data(partials)
-				.enter().append('path')
-					.attr('class', 'line')
-					.attr('d', makelinefunc);
-//					.call(drag);
-
 			// Main drag op
 			var dragops = {
 				'start': [0,0],
@@ -88,14 +90,23 @@ app.directive('partialPlot', function($window) {
 							.attr('height',1);
 					},
 					'drag': function(o) {
-						var x = dragops['start'][0], y = dragops['start'][1];
-						var dx = d3.event.x - x;
-						var dy = d3.event.y - y;
-						svg.selectAll('.selectionbox')
-							.attr('x', (dx < 0) ? x+dx : x)
-							.attr('y', (dy < 0) ? y+dy : y)
-							.attr('width', (dx < 0) ? -dx : dx)
-							.attr('height', (dy < 0) ? -dy : dy);
+						var x = dragops['start'][0],
+							y = dragops['start'][1],
+							dx = d3.event.x - x,
+							dy = d3.event.y - y
+							rect = { x: (dx < 0) ? x+dx : x,
+									 y: (dy < 0) ? y+dy : y,
+									 width: (dx < 0) ? -dx : dx,
+									 height: (dy < 0) ? -dy : dy },
+							selectionBox = { minFrame: xscale.invert(rect.x),
+											 maxFrame: xscale.invert(rect.x+rect.width),
+											 minFreq : yscale.invert(rect.y+rect.height),
+											 maxFreq : yscale.invert(rect.y) };
+						svg.selectAll('.selectionbox').attr(rect);
+						d3.selectAll('.gmain path')
+							.classed('selected', function(d) {
+								return isPartialSelected(d, selectionBox);
+							});
 					},
 					'dragend': function(o) {
 						d3.selectAll('.selectionbox').remove();
@@ -130,14 +141,23 @@ app.directive('partialPlot', function($window) {
 				.on('dragstart', function(o) { dragops[scope.opModel]['dragstart'](o); })
 				.on('drag', function(o) { dragops[scope.opModel]['drag'](o); })
 				.on('dragend', function(o) { dragops[scope.opModel]['dragend'](o); });
-			var dragarea = svg.append('rect')
+
+			// Main group
+			var gmain = svg.append('g')
+				.classed('gmain', true)
+				.call(maindrag);
+			gmain.append('rect')
 				.classed('dragarea', true)
 				.attr('x', 0)
 				.attr('y', 0)
 				.attr('width', w)
-				.attr('height', h)
-				.call(maindrag);
-
+				.attr('height', h);
+			// Dealing with data
+			gmain.selectAll('path')
+					.data(partials)
+				.enter().append('path')
+					.attr('class', 'line')
+					.attr('d', makelinefunc);
 
 			var xaxis = d3.svg.axis()
 							.scale(xscale)

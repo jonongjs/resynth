@@ -3,7 +3,7 @@
 	// Peak = { freq:frequency, amp:magnitude }
 	// detectPeaks() returns an Array of Peaks
 	//
-	// Track = { birth:frameNumber, peaks:ArrayOfPeaks }
+	// Track = [ { frame:frameNumber, peak:peak }, ... ]
 	// trackPartials() returns an Array of Tracks, ordered by birth
 
 
@@ -87,23 +87,23 @@
 	// Outputs:
 	// - 
 	exports.trackPartials = function(peaksFrames, matchingThreshold) {
-		// Track:
-		//   { birth: frameNum, peaks: [peak1, peak2, ... peakN]
+		// Track = [ { frame:frameNumber, peak:Peak }, ... ]
 		// Perform McAulay-Quatieri frame-to-frame peak matching 
 		var tracks = [];
 		var curTracks = [];
 
 		var trackComparison = function(track) {
-			return _.last(track.peaks)['freq'];
+			return _.last(track)['peak']['freq'];
 		};
 
 		// Treat all the peaks in the first frame as a 'birth'
 		_(peaksFrames[0]).forEach(function(peak) {
-			curTracks.push({ birth: 0, peaks: [peak] });
+			curTracks.push([ { frame: 0, peak: peak } ]);
 		});
 
 		// Process the rest of the frames
 		_(peaksFrames).rest().forEach(function(frame, frameIdx) {
+			// Note: frameIdx == f corresponds peaksFrames[f+1]
 			var nextPeaks = _.clone(frame);
 			curTracks = _.sortBy(curTracks, trackComparison);
 
@@ -111,21 +111,21 @@
 			_(curTracks).clone()
 			 .forEach(function(track, trackIdx, collection) {
 				 // Look for a matching peak for this track
-				 var curFreq = _.last(track.peaks)['freq'];
+				 var curFreq = _.last(track)['peak']['freq'];
 				 var nextFreqs = _(nextPeaks).pluck('freq').value();
 				 var candidateIdx = findCandidateIndex(curFreq, nextFreqs, matchingThreshold);
 
 				 if (candidateIdx == null) {
 					 // No candidates within matchingThreshold, treat as death
-					 track.peaks.push({ freq: curFreq, amp: 0 });
+					 track.push({ frame: frameIdx+1, peak: { freq: curFreq, amp: 0 } });
 					 tracks.push(track);
 					 _.pull(curTracks, track);
 				 } else {
 					 // Check if another track with a higher frequency
 					 // could be matched with this peak
 					 var unmatchedTrackFreqs = _(collection).rest(trackIdx)
-					 										.pluck('peaks')
 						 									.map(_.last)
+															.pluck('peak')
 															.pluck('freq')
 															.value();
 					 var possibleTrackIdx = findCandidateIndex(
@@ -135,7 +135,7 @@
 
 					 if (unmatchedTrackFreqs[possibleTrackIdx] == curFreq) {
 						 // Definitive match (no other tracks to match this candidate)
-						 track.peaks.push(nextPeaks[candidateIdx]);
+						 track.push({ frame: frameIdx+1, peak: nextPeaks[candidateIdx] });
 						 _.pull(nextPeaks, nextPeaks[candidateIdx]);
 					 } else {
 						 // Candidate could match another track
@@ -144,12 +144,12 @@
 						 if (lowerIndex<0 || abs(nextFreqs[lowerIndex]-curFreq) > matchingThreshold) {
 							 // Lower frequency is not a possible match
 							 // Treat this as death
-							 track.peaks.push({ freq: curFreq, amp: 0 });
+							 track.push({ frame: frameIdx+1, peak: { freq: curFreq, amp: 0 } });
 							 tracks.push(track);
 							 _.pull(curTracks, track);
 						 } else {
 							 // Take the lower frequency instead
-							 track.peaks.push(nextPeaks[lowerIndex]);
+							 track.push({ frame: frameIdx+1, peak: nextPeaks[lowerIndex] });
 							 _.pull(nextPeaks, nextPeaks[lowerIndex]);
 						 }
 					 }
@@ -158,7 +158,10 @@
 
 			 // After all matches have been done, remaining peaks are treated as births
 			 _(nextPeaks).forEach(function(peak) {
-				 curTracks.push({ birth: frameIdx, peaks: [{freq:peak.freq, amp:0}, peak] });
+				 curTracks.push([
+					 { frame: frameIdx, peak: {freq:peak.freq, amp:0} },
+					 { frame: frameIdx+1, peak: peak }
+				 ]);
 			 });
 		});
 
@@ -171,7 +174,7 @@
 
 	exports.synthesize = function(tracks, frameLen, samplingRate) {
 		var numFrames = _(tracks)
-					.map(function(track, idx, col) { return track.birth + track.peaks.length; })
+					.map(function(track) { return _.last(track)['frame']; })
 					.max()
 					.value();
 		var FREQ_FACTOR = 2.0 * PI / samplingRate;
@@ -179,34 +182,29 @@
 		var audioBuffer = new Float64Array(bufferSize);
 
 		_(tracks).forEach(function(track, idx, col) {
-			var i = track.birth * frameLen;
+			var i = track[0].frame * frameLen;
 			var instPhase = 0;
-			_(track.peaks).forEach(function(peak, idxp, colp) {
+			// Go through all peaks except the last and linearly interpolate freq and amp
+			_(track).forEach(function(framePeak, idxp, colp) {
 				if (idxp == colp.length-1)
 					return;
 
-				while (instPhase >= PI) {
-					instPhase -= PI;
-				}
-				while (instPhase <= -PI) {
-					instPhase += PI;
-				}
-
 				// Linearly interpolate freq and amp between peaks
-				var instFreq = peak.freq;
-				var instAmp  = peak.amp;
-				var stepFreq = (colp[idxp+1].freq - peak.freq) / frameLen;
-				var stepAmp  = (colp[idxp+1].amp - peak.amp) / frameLen;
-				var end = i+frameLen;
+				var samplesTillNextPeak = (colp[idxp+1].frame - framePeak.frame) * frameLen;
+				var startFreq = framePeak.peak.freq;
+				var startAmp = framePeak.peak.amp;
+				var instAmp  = startAmp;
+				var stepFreq = (colp[idxp+1].peak.freq - startFreq) / samplesTillNextPeak;
+				var stepAmp  = (colp[idxp+1].peak.amp - startAmp) / samplesTillNextPeak;
+				var end = i+samplesTillNextPeak;
 				var t = 0;
 				while (i < end) {
-					//TODO: keep track of phase
-					audioBuffer[i] += 2.0 * instAmp * sin(FREQ_FACTOR * t * (peak.freq + stepFreq*0.5*t));
-					++i;
-					instFreq += stepFreq;
+					audioBuffer[i] += instAmp * sin(FREQ_FACTOR * t * (startFreq + stepFreq*0.5*t) + instPhase);
 					instAmp  += stepAmp;
+					++i;
 					++t;
 				}
+				instPhase += FREQ_FACTOR * t * (startFreq + stepFreq*0.5*t);
 			});
 		});
 

@@ -3,12 +3,12 @@ app.directive('partialPlot', function($window) {
 
 		var isPartialSelected = function(partial, box) {
 			// Check if one of the points lies in the selection box
-			var birth = partial['birth'];
-			return _(partial['peaks'])
-				.pluck('freq')
-				.any(function(freq, idx, collection) {
+			return _(partial)
+				.any(function(framePeak, idx, collection) {
+					var frame = framePeak.frame;
+					var freq = framePeak.peak.freq;
 					return box.minFreq <= freq && freq <= box.maxFreq
-						&& box.minFrame <= idx+birth && idx+birth <= box.maxFrame;
+						&& box.minFrame <= frame && frame <= box.maxFrame;
 				});
 		};
 
@@ -36,9 +36,9 @@ app.directive('partialPlot', function($window) {
 
 			var makelinefunc = function(partial) {
 				var line = d3.svg.line()
-					.x(function(d, i) { return xscale(partial['birth'] + i); })
-					.y(function(d) { return yscale(d['freq']); });
-				return line(partial['peaks']);
+					.x(function(d) { return xscale(d['frame']); })
+					.y(function(d) { return yscale(d['peak']['freq']); });
+				return line(partial);
 			};
 
 			svg.append('clipPath')
@@ -97,9 +97,10 @@ app.directive('partialPlot', function($window) {
 						var dy = Math.round(dyfactor * d3.event.dy);
 						d3.selectAll('.gmain path.dragging')
 							.each(function(partial) {
-								partial['birth'] += dx;
-								for (var i=0; i<partial['peaks'].length; ++i) {
-									partial['peaks'][i]['freq'] += Math.round(dy);
+								var len = partial.length;
+								for (var i=0; i<len; ++i) {
+									partial[i].frame += dx;
+									partial[i].peak.freq += dy;
 								}
 							})
 							.attr('d', makelinefunc);

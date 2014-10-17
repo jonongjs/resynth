@@ -78,24 +78,24 @@ app.directive('partialPlot', function($window) {
 											 minFreq : yscale.invert(rect.y+rect.height),
 											 maxFreq : yscale.invert(rect.y) };
 						svg.selectAll('.selectionbox').attr(rect);
-						d3.selectAll('.gmain path')
+						svg.selectAll('.gmain path')
 							.classed('selected', function(d) {
 								return isPartialSelected(d, selectionBox);
 							});
 					},
 					'dragend': function(o) {
-						d3.selectAll('.selectionbox').remove();
+						svg.selectAll('.selectionbox').remove();
 					}
 				},
 				'movefree': {
 					'dragstart': function(o) {
 						d3.event.sourceEvent.stopPropagation();
-						d3.selectAll('.gmain path.selected').classed('dragging', true);
+						svg.selectAll('.gmain path.selected').classed('dragging', true);
 					},
 					'drag': function(o) {
 						var dx = Math.round(dxfactor * d3.event.dx);
 						var dy = Math.round(dyfactor * d3.event.dy);
-						d3.selectAll('.gmain path.dragging')
+						svg.selectAll('.gmain path.dragging')
 							.each(function(partial) {
 								var len = partial.length;
 								for (var i=0; i<len; ++i) {
@@ -106,7 +106,7 @@ app.directive('partialPlot', function($window) {
 							.attr('d', makelinefunc);
 					},
 					'dragend': function(o) {
-						d3.selectAll('.gmain path.dragging').classed('dragging', false);
+						svg.selectAll('.gmain path.dragging').classed('dragging', false);
 					}
 				},
 				'scaleh': {

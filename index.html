@@ -34,20 +34,26 @@
 						<i class="fa fa-fw fa-arrows"></i>
 						</div>
 					</label>
-					<label class="btn btn-primary" ng-model="opModel" btn-radio="'scaleh'">
+					<label class="btn btn-primary" ng-model="opModel" btn-radio="'scaleh'" disabled="true">
 						<div tooltip-placement="right" tooltip="Scale selection horizontally">
 						<i class="fa fa-fw fa-arrows-h"></i>
 						</div>
 					</label>
-					<label class="btn btn-primary" ng-model="opModel" btn-radio="'scalev'">
+					<label class="btn btn-primary" ng-model="opModel" btn-radio="'scalev'" disabled="true">
 						<div tooltip-placement="right" tooltip="Scale selection vertically">
 						<i class="fa fa-fw fa-arrows-v"></i>
 						</div>
 					</label>
 				</div>
-				<button ng-class="{'btn':true, 'btn-success':!isPlaying, 'btn-danger':isPlaying}" tooltip="Play" playback>
-					<i ng-class="{'fa':true, 'fa-play':!isPlaying, 'fa-stop':isPlaying}"></i>
-				</button>
+				<div class="btn-group">
+					<button ng-class="{'btn':true, 'btn-success':!isPlaying, 'btn-danger':isPlaying}" tooltip="Play" tooltip-placement="bottom" playback>
+						<i ng-class="{'fa fa-lg':true, 'fa-play':!isPlaying, 'fa-stop':isPlaying}"></i>
+					</button>
+					<button ng-class="{'btn':true, 'btn-success':!isPlaying, 'btn-danger':isPlaying}" tooltip="Play selection" tooltip-placement="bottom" playback data-use-selection="true">
+						<i ng-class="{'fa fa-lg ':true, 'fa-play':!isPlaying, 'fa-stop':isPlaying}"></i>
+						<i class="fa fa-edit fa-sub"></i>
+					</button>
+				</div>
 				<div sound-magic>
 					<svg partial-plot>
 					</svg>

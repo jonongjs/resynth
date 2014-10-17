@@ -7,3 +7,11 @@ body { background-color: #FFFFFF; }
 #toolbar { float: left; }
 
 canvas { display: none; }
+
+.fa-sub {
+  position: relative;
+  left: -.6em;
+  width: .2em;
+  vertical-align: -.25em;
+  text-shadow: 0 0 1px black;
+}

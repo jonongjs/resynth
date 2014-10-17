@@ -1,6 +1,7 @@
 app.directive('playback', function($window) {
 	return function(scope, element, attrs) {
 		var btn = element[0];
+		var useSelection = attrs.useSelection || false;
 
 		scope.isPlaying = false;
 
@@ -15,7 +16,8 @@ app.directive('playback', function($window) {
 		};
 
 		var startPlayback = function() {
-			var buffer = scope.synthesize();
+			var partials = useSelection ? scope.getSelection() : scope.partials;
+			var buffer = scope.synthesize(partials);
 
 			var len = buffer.length;
 			var webAudioBuf = scope.audioContext.createBuffer(1, len, scope.sampleRate);

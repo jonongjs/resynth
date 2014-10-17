@@ -118,8 +118,8 @@ app.directive('soundMagic', function($window) {
 
 					// Create playback parameters
 					scope.sampleRate = sampleRate;
-					scope.synthesize = function() {
-						return mqAudio.synthesize(scope.partials, fftsize, sampleRate);
+					scope.synthesize = function(partials) {
+						return mqAudio.synthesize(partials, fftsize, sampleRate);
 					};
 
 					if (processedCallback) {

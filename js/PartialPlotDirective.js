@@ -1,6 +1,8 @@
 app.directive('partialPlot', function($window) {
 	return function(scope, element, attrs) {
 
+		var svg;
+
 		var isPartialSelected = function(partial, box) {
 			// Check if one of the points lies in the selection box
 			return _(partial)
@@ -18,7 +20,7 @@ app.directive('partialPlot', function($window) {
 			var w = 960 - margin.left - margin.right;
 			var h = 500 - margin.top - margin.bottom;
 
-			var svg = d3.select(canvas)
+			svg = d3.select(canvas)
 						.attr('width', w + margin.left + margin.right)
 						.attr('height', h + margin.top + margin.bottom)
 						.append('g')
@@ -172,6 +174,10 @@ app.directive('partialPlot', function($window) {
 			var sampleRate = scope.sampleRate;
 			var spectrogram = scope.spectrogram;
 			plotPartials(element[0], partials, sampleRate, spectrogram);
+		};
+
+		scope.getSelection = function() {
+			return svg.selectAll('.selected').data();
 		};
 	};
 });

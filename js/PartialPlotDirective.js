@@ -54,6 +54,7 @@ app.directive('partialPlot', function($window) {
 			// Main drag op
 			var dragops = {
 				'start': [0,0],
+				'delta': [0,0],
 				// Event handlers for the different ops
 				'select': {
 					'dragstart': function(o) {
@@ -92,11 +93,16 @@ app.directive('partialPlot', function($window) {
 				'movefree': {
 					'dragstart': function(o) {
 						d3.event.sourceEvent.stopPropagation();
+						dragops['delta'][0] = dragops['delta'][1] = 0;
 						svg.selectAll('.gmain path.selected').classed('dragging', true);
 					},
 					'drag': function(o) {
-						var dx = Math.round(dxfactor * d3.event.dx);
-						var dy = Math.round(dyfactor * d3.event.dy);
+						dragops['delta'][0] += dxfactor * d3.event.dx;
+						dragops['delta'][1] += dyfactor * d3.event.dy;
+						var dx = Math.round(dragops['delta'][0]);
+						var dy = Math.round(dragops['delta'][1]);
+						dragops['delta'][0] -= dx;
+						dragops['delta'][1] -= dy;
 						svg.selectAll('.gmain path.dragging')
 							.each(function(partial) {
 								var len = partial.length;

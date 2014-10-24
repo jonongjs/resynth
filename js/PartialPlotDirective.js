@@ -119,18 +119,60 @@ app.directive('partialPlot', function($window) {
 				},
 				'scaleh': {
 					'dragstart': function(o) {
+						d3.event.sourceEvent.stopPropagation();
+						dragops['delta'][0] = dragops['delta'][1] = 0;
+						svg.selectAll('.gmain path.selected').classed('dragging', true);
 					},
 					'drag': function(o) {
+						dragops['delta'][0] += 1 + d3.event.dx/100;
+						var dx = (dragops['delta'][0]);
+						if (dx != 0) {
+							dragops['delta'][0] -= dx;
+							svg.selectAll('.gmain path.dragging')
+								.each(function(partial) {
+									var len = partial.length;
+									for (var i=1; i<len; ++i) {
+										if (dx > 0) {
+											partial[i].frame = partial[0].frame + (dx*(partial[i].frame-partial[0].frame));
+										} else {
+											partial[i].frame = partial[0].frame + (Math.pow(2,dx)*(partial[i].frame-partial[0].frame));
+										}
+									}
+								})
+								.attr('d', makelinefunc);
+						}
 					},
 					'dragend': function(o) {
+						svg.selectAll('.gmain path.dragging').classed('dragging', false);
 					}
 				},
 				'scalev': {
 					'dragstart': function(o) {
+						d3.event.sourceEvent.stopPropagation();
+						dragops['delta'][0] = dragops['delta'][1] = 0;
+						svg.selectAll('.gmain path.selected').classed('dragging', true);
 					},
 					'drag': function(o) {
+						dragops['delta'][1] += 1 - d3.event.dy/100;
+						var dy = (dragops['delta'][1]);
+						if (dy != 0) {
+							dragops['delta'][1] -= dy;
+							svg.selectAll('.gmain path.dragging')
+								.each(function(partial) {
+									var len = partial.length;
+									for (var i=1; i<len; ++i) {
+										if (dy > 0) {
+											partial[i].peak.freq = partial[0].peak.freq + (dy*(partial[i].peak.freq-partial[0].peak.freq));
+										} else {
+											partial[i].peak.freq = partial[0].peak.freq + (Math.pow(2,dy)*(partial[i].peak.freq-partial[0].peak.freq));
+										}
+									}
+								})
+								.attr('d', makelinefunc);
+						}
 					},
 					'dragend': function(o) {
+						svg.selectAll('.gmain path.dragging').classed('dragging', false);
 					}
 				}
 			};

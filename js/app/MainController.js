@@ -31,4 +31,12 @@ app.controller('MainController', ['$scope', '$rootScope', function($scope, $root
 		$scope.tabs.splice(index, 1);
 	};
 
+	var pasteBuffer = [];
+	$scope.putInBuffer = function(selection) {
+		pasteBuffer = _.cloneDeep(selection);
+	};
+	$scope.getBuffer = function() {
+		return pasteBuffer;
+	};
+
 }]);

@@ -215,6 +215,16 @@ app.directive('partialPlot', function($window) {
 			svg.append('g')
 				.attr('class', 'axis')
 				.call(yaxis);
+
+			// Function to replot the partials after a paste or delete
+			scope.replotPartials = function(partials) {
+				var paths = gmain.selectAll('path')
+					.data(partials);
+				paths.enter().append('path')
+						.attr('class', 'line')
+						.attr('d', makelinefunc);
+				paths.exit().remove();
+			};
 		};
 
 		scope.plotPartials = function() {

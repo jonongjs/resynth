@@ -128,6 +128,10 @@ app.directive('soundMagic', function($window) {
 				}
 			});
 		};
+
+		scope.addPartials = function(partials) {
+			scope.partials = scope.partials.concat(partials);
+		};
 	}
 
 });

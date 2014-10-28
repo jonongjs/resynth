@@ -10,6 +10,7 @@
 	var abs = Math.abs;
 	var sin = Math.sin;
 	var PI  = Math.PI;
+	var log10 = (Math.log10) ? Math.log10 : function(x) { return Math.log(x)/Math.log(10); };
 
 	// Detect peaks in a amplitude spectrogram.
 	// Inputs:
@@ -22,9 +23,7 @@
 	// - 2D array of peak frequencies found over time,
 	//   1st axis as time (frames), 2nd axis as ascending peak frequencies
 	exports.detectPeaks = function(spectrogram, sampleRate, threshold, maxPeaks) {
-		// Naive detection of peaks
-		//TODO: polynomial interpolation
-
+		// Detection of peaks with polynomial interpolation
 		var allPeaks = [];
 
 		_(spectrogram).forEach(function(frame, idx, collection) {
@@ -38,7 +37,13 @@
 			for (i=1; i<bins-1; ++i) {
 				var nextMag = frame[i+1];
 				if (curMag > prevMag && curMag > nextMag && curMag > threshold) {
-					framePeaks.push({ freq: i*binFactor, amp: curMag });
+					// Found a peak; we interpolate the dB scale values
+					var alpha = 20*log10((prevMag > 0) ? prevMag : 1e-6);
+					var beta = 20*log10((curMag > 0) ? curMag : 1e-6);
+					var gamma = 20*log10((nextMag > 0) ? nextMag : 1e-6);
+					var centre = i + (alpha-gamma) * 0.5 / (alpha - 2*beta + gamma);
+					var amp = Math.pow(10, (beta - 0.25*(alpha-gamma)*(centre-i))/20);
+					framePeaks.push({ freq: centre*binFactor, amp: amp });
 				}
 				prevMag = curMag;
 				curMag = nextMag;

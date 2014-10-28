@@ -7,6 +7,8 @@ app.controller('TabController', ['$scope', '$rootScope', '$modal', '$log', funct
 		windowSize: 1024
 	};
 
+	$scope.alerts = [];
+
 	var modalInstance = $modal.open({
 		templateUrl: 'analysisParams.html',
 		controller: 'AnalysisParamsController',

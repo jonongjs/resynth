@@ -6,7 +6,6 @@
 	// Track = [ { frame:frameNumber, peak:peak }, ... ]
 	// trackPartials() returns an Array of Tracks, ordered by birth
 
-
 	var abs = Math.abs;
 	var sin = Math.sin;
 	var PI  = Math.PI;
@@ -182,12 +181,13 @@
 					.map(function(track) { return _.last(track)['frame']; })
 					.max()
 					.value();
+		numFrames = Math.ceil(numFrames);
 		var FREQ_FACTOR = 2.0 * PI / samplingRate;
 		var bufferSize  = numFrames * frameLen;
 		var audioBuffer = new Float64Array(bufferSize);
 
 		_(tracks).forEach(function(track, idx, col) {
-			var i = track[0].frame * frameLen;
+			var i = Math.round(track[0].frame * frameLen);
 			var instPhase = 0;
 			// Go through all peaks except the last and linearly interpolate freq and amp
 			_(track).forEach(function(framePeak, idxp, colp) {
@@ -195,7 +195,7 @@
 					return;
 
 				// Linearly interpolate freq and amp between peaks
-				var samplesTillNextPeak = (colp[idxp+1].frame - framePeak.frame) * frameLen;
+				var samplesTillNextPeak = Math.round(colp[idxp+1].frame - framePeak.frame) * frameLen;
 				var startFreq = framePeak.peak.freq;
 				var startAmp = framePeak.peak.amp;
 				var instAmp  = startAmp;

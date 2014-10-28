@@ -99,8 +99,8 @@ app.directive('partialPlot', function($window) {
 					'drag': function(o) {
 						dragops['delta'][0] += dxfactor * d3.event.dx;
 						dragops['delta'][1] += dyfactor * d3.event.dy;
-						var dx = Math.round(dragops['delta'][0]);
-						var dy = Math.round(dragops['delta'][1]);
+						var dx = (dragops['delta'][0]);
+						var dy = (dragops['delta'][1]);
 						dragops['delta'][0] -= dx;
 						dragops['delta'][1] -= dy;
 						svg.selectAll('.gmain path.dragging')

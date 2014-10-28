@@ -6,6 +6,9 @@ body { background-color: #FFFFFF; }
 
 #toolbar { float: left; }
 
+.tab-content { padding: 1% 2%; }
+.tab-content h1 { margin: 0.1em 0 0.3em 0; }
+
 canvas { display: none; }
 
 .fa-sub {

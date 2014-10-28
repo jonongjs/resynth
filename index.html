@@ -19,7 +19,18 @@
 		<tabset>
 			<tab>
 				<tab-heading>Resynth</tab-heading>
-				Get started by clicking on the <i class="fa fa-plus-square"></i>
+				<h1>Resynth</h1>
+				<p>A spectral audio editing tool inspired by <a href="http://www.klingbeil.com/spear/">SPEAR</a>.
+				<p>Started by clicking on the <i class="fa fa-plus-square"></i>.</p>
+				<p>Currently only works with .wav files.</p>
+				<p>Built with:</p>
+					<ul>
+						<li><a href="https://angularjs.org/">AngularJS</a></li>
+						<li><a href="https://github.com/jussi-kalliokoski/audiolib.js/">audiolib.js</a> (for the FFT implementation)</li>
+						<li><a href="https://github.com/audiocogs/aurora.js/">Aurora.js</a> (for audio file decoding)</li>
+						<li><a href="http://d3js.org/">D3.js</a></li>
+						<li><a href="https://lodash.com/">Lo-Dash</a></li>
+					</ul>
 			</tab>
 			<tab ng-repeat="tab in tabs" active="tab.active" ng-controller="TabController" class="tab">
 				<tab-heading>{{tab.title}} <a href="" ng-click="removeTab($index)"><i class="fa fa-close"></i></a></tab-heading>

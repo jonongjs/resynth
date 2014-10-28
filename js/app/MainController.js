@@ -39,4 +39,6 @@ app.controller('MainController', ['$scope', '$rootScope', function($scope, $root
 		return pasteBuffer;
 	};
 
+	$scope.opModel = 'select';
+
 }]);

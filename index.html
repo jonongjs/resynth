@@ -4,7 +4,7 @@
 	<meta charset="utf-8">
 	<meta name="description" content="Analysis-resynthesis tool">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Resynth</title>
+    <title>Resynth - Spectral Audio Editing</title>
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/font-awesome.min.css" rel="stylesheet">
     <link href="css/app.css" rel="stylesheet">
@@ -15,6 +15,29 @@
     <div ng-controller="MainController" drag-upload>
 		<form> <input type="file" id="inputfile" class="inputfile" input-change="addFile(f)"/> </form>
 		<div class="drag-upload">Drag here!</div>
+
+		<div class="btn-group-vertical" id="toolbar">
+			<label class="btn btn-primary" ng-model="opModel" btn-radio="'select'">
+				<div tooltip-placement="right" tooltip="Make selection">
+				<i class="fa fa-fw fa-pencil-square-o"></i>
+				</div>
+			</label>
+			<label class="btn btn-primary" ng-model="opModel" btn-radio="'movefree'">
+				<div tooltip-placement="right" tooltip="Move selection">
+				<i class="fa fa-fw fa-arrows"></i>
+				</div>
+			</label>
+			<label class="btn btn-primary" ng-model="opModel" btn-radio="'scaleh'">
+				<div tooltip-placement="right" tooltip="Scale selection horizontally">
+				<i class="fa fa-fw fa-arrows-h"></i>
+				</div>
+			</label>
+			<label class="btn btn-primary" ng-model="opModel" btn-radio="'scalev'">
+				<div tooltip-placement="right" tooltip="Scale selection vertically">
+				<i class="fa fa-fw fa-arrows-v"></i>
+				</div>
+			</label>
+		</div>
 
 		<tabset>
 			<tab>
@@ -34,28 +57,6 @@
 			</tab>
 			<tab ng-repeat="tab in tabs" active="tab.active" ng-controller="TabController" class="tab">
 				<tab-heading>{{tab.title}} <a href="" ng-click="removeTab($index)"><i class="fa fa-close"></i></a></tab-heading>
-				<div class="btn-group-vertical" id="toolbar">
-					<label class="btn btn-primary" ng-model="opModel" btn-radio="'select'">
-						<div tooltip-placement="right" tooltip="Make selection">
-						<i class="fa fa-fw fa-pencil-square-o"></i>
-						</div>
-					</label>
-					<label class="btn btn-primary" ng-model="opModel" btn-radio="'movefree'">
-						<div tooltip-placement="right" tooltip="Move selection">
-						<i class="fa fa-fw fa-arrows"></i>
-						</div>
-					</label>
-					<label class="btn btn-primary" ng-model="opModel" btn-radio="'scaleh'">
-						<div tooltip-placement="right" tooltip="Scale selection horizontally">
-						<i class="fa fa-fw fa-arrows-h"></i>
-						</div>
-					</label>
-					<label class="btn btn-primary" ng-model="opModel" btn-radio="'scalev'">
-						<div tooltip-placement="right" tooltip="Scale selection vertically">
-						<i class="fa fa-fw fa-arrows-v"></i>
-						</div>
-					</label>
-				</div>
 
 				<div class="btn-group">
 					<button ng-class="{'btn':true, 'btn-success':!isPlaying, 'btn-danger':isPlaying}" tooltip="Play" tooltip-placement="bottom" playback>

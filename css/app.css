@@ -4,10 +4,10 @@ body { background-color: #FFFFFF; }
 .drag-upload { height: 3em; width: 90%; opacity: 0; display: none; }
 #inputfile { display: none; }
 
-#toolbar { float: left; }
+#toolbar { width:3em; position: fixed; top:7em; left: 1em }
 
-.tab-content { padding: 1% 2%; }
-.tab-content h1 { margin: 0.1em 0 0.3em 0; }
+.tab-content { padding: 1em 2em 1em 5em }
+.tab-content h1 { margin: 0.1em 0 0.3em 0 }
 
 canvas { display: none; }
 

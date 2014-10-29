@@ -94,7 +94,7 @@ app.directive('soundMagic', function($window) {
 			var soundFile = scope.tab.file;
 			var soundAsset = AV.Asset.fromFile(soundFile);
 			soundAsset.on('error', function(e) {
-				scope.alerts.push({ msg: 'An error while reading the file: ' + e, type: 'danger' });
+				scope.alerts.push({ msg: 'An error occurred while reading the file: ' + e, type: 'danger' });
 			});
 
 //			var timeDomainCanvas = document.createElement('canvas');

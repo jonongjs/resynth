@@ -1,0 +1,37 @@
+body, html { height: 100%; }
+body { background-color: #FFFFFF; }
+
+.drag-upload { height: 3em; width: 90%; opacity: 0; display: none; }
+#inputfile { display: none; }
+
+#toolbar { width:3em; position: fixed; top:7em; left: 1em }
+
+.tab-content { padding: 1em 2em 1em 5em }
+.tab-content h1 { margin: 0.1em 0 0.3em 0 }
+
+canvas { display: none; }
+
+.fa-sub {
+  position: relative;
+  left: -.6em;
+  width: .2em;
+  vertical-align: -.25em;
+  text-shadow: 0 0 1px black;
+}
+
+.hide-at-load { visibility: hidden }
+#cover {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:rgba(0,0,0,0.2);
+}
+#loading {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}

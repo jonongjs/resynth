@@ -1,0 +1,58 @@
+svg {
+	display: block;
+	margin: 2em;
+}
+
+.bar {
+	display: inline-block;
+	width: 20px;
+	background-color: teal;
+	margin-right: 5px;
+}
+
+#circles circle {
+	fill: olive;
+	stroke: orange;
+}
+#circles circle:hover {
+	fill: red;
+	stroke: blue;
+}
+
+.axis path, .axis line {
+	 fill: none;
+	 stroke: black;
+	 shape-rendering: crispEdges;
+}
+
+.axis text {
+	pointer-events: none;
+}
+
+.line {
+	fill: none;
+	stroke: steelblue;
+	stroke-width: 3px;
+}
+.line:hover, .selected {
+	stroke: red;
+	stroke-width: 3.5px;
+}
+
+.dragging {
+	stroke: red;
+	stroke-opacity: 0.8;
+	stroke-width: 3.5px;
+}
+
+.gmain {
+	pointer-events: all;
+}
+.dragarea {
+	visibility: hidden;
+}
+.selectionbox {
+	fill: steelblue;
+	stroke: cornflowerblue;
+	opacity: 0.4;
+}

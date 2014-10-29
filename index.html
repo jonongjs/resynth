@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html ng-app="resynthApp">
+  <head>
+	<meta charset="utf-8">
+	<meta name="description" content="Analysis-resynthesis tool">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Resynth - Spectral Audio Editing</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/font-awesome.min.css" rel="stylesheet">
+    <link href="css/app.css" rel="stylesheet">
+    <link href="css/data.css" rel="stylesheet">
+  </head>
+
+  <body>
+    <div ng-controller="MainController" drag-upload class="hide-at-load" id="main">
+		<form> <input type="file" id="inputfile" class="inputfile" input-change="addFile(f)"/> </form>
+		<div class="drag-upload">Drag here!</div>
+
+		<div class="btn-group-vertical" id="toolbar">
+			<label class="btn btn-primary" ng-model="opModel" btn-radio="'select'">
+				<div tooltip-placement="right" tooltip="Make selection">
+				<i class="fa fa-fw fa-pencil-square-o"></i>
+				</div>
+			</label>
+			<label class="btn btn-primary" ng-model="opModel" btn-radio="'movefree'">
+				<div tooltip-placement="right" tooltip="Move selection">
+				<i class="fa fa-fw fa-arrows"></i>
+				</div>
+			</label>
+			<label class="btn btn-primary" ng-model="opModel" btn-radio="'scaleh'">
+				<div tooltip-placement="right" tooltip="Scale selection horizontally">
+				<i class="fa fa-fw fa-arrows-h"></i>
+				</div>
+			</label>
+			<label class="btn btn-primary" ng-model="opModel" btn-radio="'scalev'">
+				<div tooltip-placement="right" tooltip="Scale selection vertically">
+				<i class="fa fa-fw fa-arrows-v"></i>
+				</div>
+			</label>
+		</div>
+
+		<tabset>
+			<tab>
+				<tab-heading>Resynth</tab-heading>
+				<h1>Resynth</h1>
+				<p>A spectral audio editing tool inspired by <a href="http://www.klingbeil.com/spear/">SPEAR</a>.
+				<p>Started by clicking on the <i class="fa fa-plus-square"></i>.</p>
+				<p>Currently only works with .wav files.</p>
+				<p>Built with:</p>
+					<ul>
+						<li><a href="https://angularjs.org/">AngularJS</a></li>
+						<li><a href="https://github.com/jussi-kalliokoski/audiolib.js/">audiolib.js</a> (for the FFT implementation)</li>
+						<li><a href="https://github.com/audiocogs/aurora.js/">Aurora.js</a> (for audio file decoding)</li>
+						<li><a href="http://d3js.org/">D3.js</a></li>
+						<li><a href="https://lodash.com/">Lo-Dash</a></li>
+					</ul>
+			</tab>
+			<tab ng-repeat="tab in tabs" active="tab.active" ng-controller="TabController" class="tab">
+				<tab-heading>{{tab.title}} <a href="" ng-click="removeTab($index)"><i class="fa fa-close"></i></a></tab-heading>
+
+				<div class="btn-group">
+					<button ng-class="{'btn':true, 'btn-success':!isPlaying, 'btn-danger':isPlaying}" tooltip="Play" tooltip-placement="bottom" playback>
+						<i ng-class="{'fa fa-lg':true, 'fa-play':!isPlaying, 'fa-stop':isPlaying}"></i>
+					</button>
+					<button ng-class="{'btn':true, 'btn-success':!isPlaying, 'btn-danger':isPlaying}" tooltip="Play selection" tooltip-placement="bottom" playback data-use-selection="true" ng-disabled="!hasSelection()">
+						<i ng-class="{'fa fa-lg ':true, 'fa-play':!isPlaying, 'fa-stop':isPlaying}"></i>
+						<i class="fa fa-edit fa-sub"></i>
+					</button>
+				</div>
+				<div class="btn-group">
+					<button class="btn btn-default" tootip="Cut selection" tooltip-placement="bottom" ng-click="cutSelection()" ng-disabled="!hasSelection()">
+						<i class="fa fa-lg fa-cut"></i>
+					</button>
+					<button class="btn btn-default" tootip="Copy selection" tooltip-placement="bottom" ng-click="copySelection()" ng-disabled="!hasSelection()">
+						<i class="fa fa-lg fa-copy"></i>
+					</button>
+					<button class="btn btn-default" tootip="Paste tracks" tooltip-placement="bottom" ng-click="pasteFromBuffer()" ng-disabled="getBuffer().length == 0">
+						<i class="fa fa-lg fa-paste"></i>
+					</button>
+				</div>
+
+				<alert ng-repeat="alert in alerts" type="{{alert.type}}">{{alert.msg}}</alert>
+
+				<div sound-magic>
+					<svg partial-plot>
+					</svg>
+				</div>
+			</tab>
+			<tab select="buttonClicked()" button-upload>
+				<tab-heading tooltip="Add file" tooltip-placement="bottom">
+					<i class="fa fa-plus-square"></i>
+				</tab-heading>
+			</tab>
+		</tabset>
+    </div>
+
+	<div id="cover"></div>
+	<div id="loading">
+		<p><i class="fa fa-spinner fa-spin fa-5x"></i></p>
+		<p>Please wait...</p>
+	</div>
+
+	<script type="text/ng-template" id="analysisParams.html">
+        <div class="modal-header">
+            <h3 class="modal-title">Analysis Parameters</h3>
+        </div>
+        <div class="modal-body">
+			<label>Threshold: <input type="number" class="form-control" name="threshold" ng-model="params.threshold" min="0"></label>
+			<label>Max peaks: <input type="number" class="form-control" name="maxPeaks" ng-model="params.maxPeaks" min="1"></label>
+			<label>Match delta: <input type="number" class="form-control" name="matchDelta" ng-model="params.matchDelta" min="1"></label>
+			<label>Window size: <input type="number" class="form-control" name="windowSize" ng-model="params.windowSize"min="1"></label>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" ng-click="ok()">OK</button>
+            <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+        </div>
+    </script>
+
+    <script src="js/vendor/angular.min.js"></script>
+    <script src="js/vendor/ui-bootstrap-tpls-0.11.0.min.js"></script>
+    <script src="js/app/app.js"></script>
+    <script src="js/app/mqAudio.js"></script>
+
+    <script src="js/app/MainController.js"></script>
+    <script src="js/app/TabController.js"></script>
+    <script src="js/app/AnalysisParamsController.js"></script>
+    <script src="js/ButtonUploadDirective.js"></script>
+    <script src="js/DragUploadDirective.js"></script>
+    <script src="js/InputChangeDirective.js"></script>
+    <script src="js/PlaybackDirective.js"></script>
+    <script src="js/PartialPlotDirective.js"></script>
+    <script src="js/SoundMagicDirective.js"></script>
+
+	<script src="js/vendor/audiolib.js"></script>
+	<script src="js/vendor/aurora.js"></script>
+	<script src="js/vendor/d3.min.js"></script>
+	<script src="js/vendor/lodash.min.js"></script>
+	<script>
+	// Hacky way of getting rid of the loading screen
+	angular.element(document).ready(function() {
+		angular.element(document.getElementById('loading')).remove();
+		angular.element(document.getElementById('cover')).remove();
+		angular.element(document.getElementById('main')).removeClass('hide-at-load');
+	});
+	</script>
+  </body>
+</html>

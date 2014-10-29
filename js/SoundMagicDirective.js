@@ -132,6 +132,9 @@ app.directive('soundMagic', function($window) {
 		scope.addPartials = function(partials) {
 			scope.partials = scope.partials.concat(partials);
 		};
+		scope.removePartials = function(partials) {
+			scope.partials = _.difference(scope.partials, partials);
+		};
 	}
 
 });

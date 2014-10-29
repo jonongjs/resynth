@@ -27,6 +27,12 @@ app.controller('TabController', ['$scope', '$rootScope', '$modal', '$log', funct
 		//TODO: remove tab
 	});
 
+	$scope.cutSelection = function() {
+		var selection = $scope.getSelection();
+		$scope.putInBuffer(selection);
+		$scope.removePartials(selection);
+		$scope.replotPartials($scope.partials);
+	};
 	$scope.copySelection = function() {
 		$scope.putInBuffer($scope.getSelection());
 	};

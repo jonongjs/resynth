@@ -88,6 +88,7 @@ app.directive('partialPlot', function($window) {
 					},
 					'dragend': function(o) {
 						svg.selectAll('.selectionbox').remove();
+						scope.safeApply();
 					}
 				},
 				'movefree': {
@@ -219,7 +220,9 @@ app.directive('partialPlot', function($window) {
 			// Function to replot the partials after a paste or delete
 			scope.replotPartials = function(partials) {
 				var paths = gmain.selectAll('path')
-					.data(partials);
+					.data(partials)
+					.attr('d', makelinefunc)
+					.classed('selected', false);
 				paths.enter().append('path')
 						.attr('class', 'line')
 						.attr('d', makelinefunc);
@@ -235,7 +238,11 @@ app.directive('partialPlot', function($window) {
 		};
 
 		scope.getSelection = function() {
-			return svg.selectAll('.selected').data();
+			return svg == null ? [] : svg.selectAll('.selected').data();
+		};
+
+		scope.hasSelection = function() {
+			return scope.getSelection().length > 0;
 		};
 	};
 });

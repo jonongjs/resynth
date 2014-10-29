@@ -68,10 +68,13 @@
 					</button>
 				</div>
 				<div class="btn-group">
-					<button class="btn btn-default" tootip="Copy selection" tooltip-placement="bottom" ng-click="copySelection()">
+					<button class="btn btn-default" tootip="Cut selection" tooltip-placement="bottom" ng-click="cutSelection()" ng-disabled="!hasSelection()">
+						<i class="fa fa-lg fa-cut"></i>
+					</button>
+					<button class="btn btn-default" tootip="Copy selection" tooltip-placement="bottom" ng-click="copySelection()" ng-disabled="!hasSelection()">
 						<i class="fa fa-lg fa-copy"></i>
 					</button>
-					<button class="btn btn-default" tootip="Paste tracks" tooltip-placement="bottom" ng-click="pasteFromBuffer()">
+					<button class="btn btn-default" tootip="Paste tracks" tooltip-placement="bottom" ng-click="pasteFromBuffer()" ng-disabled="getBuffer().length == 0">
 						<i class="fa fa-lg fa-paste"></i>
 					</button>
 				</div>

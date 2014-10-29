@@ -62,7 +62,7 @@
 					<button ng-class="{'btn':true, 'btn-success':!isPlaying, 'btn-danger':isPlaying}" tooltip="Play" tooltip-placement="bottom" playback>
 						<i ng-class="{'fa fa-lg':true, 'fa-play':!isPlaying, 'fa-stop':isPlaying}"></i>
 					</button>
-					<button ng-class="{'btn':true, 'btn-success':!isPlaying, 'btn-danger':isPlaying}" tooltip="Play selection" tooltip-placement="bottom" playback data-use-selection="true">
+					<button ng-class="{'btn':true, 'btn-success':!isPlaying, 'btn-danger':isPlaying}" tooltip="Play selection" tooltip-placement="bottom" playback data-use-selection="true" ng-disabled="!hasSelection()">
 						<i ng-class="{'fa fa-lg ':true, 'fa-play':!isPlaying, 'fa-stop':isPlaying}"></i>
 						<i class="fa fa-edit fa-sub"></i>
 					</button>

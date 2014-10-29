@@ -25,6 +25,10 @@ svg {
 	 shape-rendering: crispEdges;
 }
 
+.axis text {
+	pointer-events: none;
+}
+
 .line {
 	fill: none;
 	stroke: steelblue;

@@ -12,7 +12,7 @@
   </head>
 
   <body>
-    <div ng-controller="MainController" drag-upload>
+    <div ng-controller="MainController" drag-upload class="hide-at-load" id="main">
 		<form> <input type="file" id="inputfile" class="inputfile" input-change="addFile(f)"/> </form>
 		<div class="drag-upload">Drag here!</div>
 
@@ -94,6 +94,12 @@
 		</tabset>
     </div>
 
+	<div id="cover"></div>
+	<div id="loading">
+		<p><i class="fa fa-spinner fa-spin fa-5x"></i></p>
+		<p>Please wait...</p>
+	</div>
+
 	<script type="text/ng-template" id="analysisParams.html">
         <div class="modal-header">
             <h3 class="modal-title">Analysis Parameters</h3>
@@ -129,5 +135,13 @@
 	<script src="js/vendor/aurora.js"></script>
 	<script src="js/vendor/d3.min.js"></script>
 	<script src="js/vendor/lodash.min.js"></script>
+	<script>
+	// Hacky way of getting rid of the loading screen
+	angular.element(document).ready(function() {
+		angular.element(document.getElementById('loading')).remove();
+		angular.element(document.getElementById('cover')).remove();
+		angular.element(document.getElementById('main')).removeClass('hide-at-load');
+	});
+	</script>
   </body>
 </html>

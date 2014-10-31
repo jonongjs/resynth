@@ -41,4 +41,21 @@ app.controller('TabController', ['$scope', '$rootScope', '$modal', '$log', funct
 		$scope.replotPartials($scope.partials);
 	};
 
+	$scope.downloadWav = function() {
+		var samples = $scope.synthesize($scope.partials);
+		var wavdata = $scope.exportWav(samples, $scope.sampleRate, 1);
+		var blob = new Blob([wavdata], { type: 'audio/wav' });
+		var url = URL.createObjectURL(blob);
+
+		var lastDot = $scope.tab.title.lastIndexOf('.');
+		var saveName = (lastDot >= 0) ? $scope.tab.title.substring(0, lastDot) : $scope.tab.title;
+		saveName = saveName + '-resynth.wav';
+
+		var link = document.createElement('a');
+		link.href = url;
+		link.download = saveName;
+		link.innerText = saveName;
+		link.click();
+	}
+
 }]);

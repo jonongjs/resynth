@@ -135,6 +135,68 @@ app.directive('soundMagic', function($window) {
 		scope.removePartials = function(partials) {
 			scope.partials = _.difference(scope.partials, partials);
 		};
+
+		// Takes in audio samples (in floating-point representation)
+		// and generates a 16-bit PCM .wav buffer with given sample rate
+		// and the specified number of channels (1 if unspecified)
+		scope.exportWav = function(samples, sampleRate, numChannels) {
+			numChannels = numChannels || 1;
+			// Adapted from RecorderJS
+			var sampleBytes = samples.length * 2;
+			var blockAlign = numChannels * 2; // Channel count * bytes per sample
+			var buffer = new ArrayBuffer(44 + sampleBytes);
+			var view = new DataView(buffer);
+
+			// RIFF
+			view.setUint8(0, 'R'.charCodeAt(0))
+			view.setUint8(1, 'I'.charCodeAt(0))
+			view.setUint8(2, 'F'.charCodeAt(0))
+			view.setUint8(3, 'F'.charCodeAt(0))
+			// RIFF chunk length
+			view.setUint32(4, 36 + sampleBytes, true);
+			// RIFF type
+			view.setUint8(8,  'W'.charCodeAt(0))
+			view.setUint8(9,  'A'.charCodeAt(0))
+			view.setUint8(10, 'V'.charCodeAt(0))
+			view.setUint8(11, 'E'.charCodeAt(0))
+
+			// Format chunk identifier
+			view.setUint8(12, 'f'.charCodeAt(0))
+			view.setUint8(13, 'm'.charCodeAt(0))
+			view.setUint8(14, 't'.charCodeAt(0))
+			view.setUint8(15, ' '.charCodeAt(0))
+			// Format chunk length
+			view.setUint32(16, 16, true);
+			// Sample format (raw)
+			view.setUint16(20, 1, true);
+			// Channel count
+			view.setUint16(22, numChannels, true);
+			// Sample rate
+			view.setUint32(24, sampleRate, true);
+			// Byte rate (sample rate * block alignment)
+			view.setUint32(28, sampleRate * blockAlign, true);
+			// Block alignment (channel count * bytes per sample)
+			view.setUint16(32, blockAlign, true);
+			// Bits per sample
+			view.setUint16(34, 16, true);
+
+			// Data chunk identifier
+			view.setUint8(36, 'd'.charCodeAt(0))
+			view.setUint8(37, 'a'.charCodeAt(0))
+			view.setUint8(38, 't'.charCodeAt(0))
+			view.setUint8(39, 'a'.charCodeAt(0))
+			// Data chunk length
+			view.setUint32(40, sampleBytes, true);
+			// Write the data
+			// Convert from floating-point PCM to 16-bit PCM and write
+			var offset = 44;
+			for (var i=0; i<samples.length; i++, offset+=2){
+				var s = Math.max(-1, Math.min(1, samples[i]));
+				view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+			}
+
+			return view;
+		};
 	}
 
 });

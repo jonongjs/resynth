@@ -4,7 +4,8 @@ app.controller('TabController', ['$scope', '$rootScope', '$modal', '$log', funct
 		threshold: 0.00001,
 		maxPeaks: 60,
 		matchDelta: 200,
-		windowSize: 1024
+		windowSize: 1024,
+		hopSize: 512
 	};
 
 	$scope.alerts = [];

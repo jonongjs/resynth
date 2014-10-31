@@ -59,24 +59,29 @@ app.directive('soundMagic', function($window) {
 			}
 		};
 
-		var getSpectrogram = function(buffer, sampleRate, fftsize) {
+		var getSpectrogram = function(buffer, sampleRate, fftsize, hopsize) {
+			hopsize = hopsize || fftsize;
 			var spectrogram = [];
 			var fft = audioLib.FFT(sampleRate, fftsize);
 			var bufferLen  = buffer.length;
-			var numBuffers = Math.ceil(bufferLen / fftsize);
+			var numBuffers = Math.floor((bufferLen-fftsize) / hopsize) + 1;
 
 			var windowSamples = hammingWindow(fftsize);
 
-			var index = 0;
+			var start = 0;
+			var index;
 			var i,j;
 			for (i=0; i<numBuffers-1; ++i) {
+				index = start;
 				for (j=0; j<fftsize; ++j) {
 					fft.pushSample(buffer[index++]*windowSamples[j]);
 				}
 				//NOTE: audioLib.FFT gives us the magnitude spectrum
 				spectrogram.push(new Float64Array(fft.spectrum));
+				start += hopsize;
 			}
 			// Handle the final frame as a special case to deal with padding
+			index = start;
 			for (j=0; j<fftsize; ++j) {
 				if (index < bufferLen) {
 					fft.pushSample(buffer[index++]*windowSamples[j]);
@@ -110,16 +115,17 @@ app.directive('soundMagic', function($window) {
 			soundAsset.decodeToBuffer(function(buffer) {
 				if (buffer.length > 0) {
 					var fftsize = scope.params.windowSize;
+					var hopsize = Math.max(1, scope.params.hopSize);
 					var sampleRate = soundAsset.format.sampleRate;
 
-					scope.spectrogram = getSpectrogram(buffer, sampleRate, fftsize);
+					scope.spectrogram = getSpectrogram(buffer, sampleRate, fftsize, hopsize);
 					scope.peaks = mqAudio.detectPeaks(scope.spectrogram, sampleRate, scope.params.threshold, scope.params.maxPeaks);
 					scope.partials = mqAudio.trackPartials(scope.peaks, scope.params.matchDelta);
 
 					// Create playback parameters
 					scope.sampleRate = sampleRate;
 					scope.synthesize = function(partials) {
-						return mqAudio.synthesize(partials, fftsize, sampleRate);
+						return mqAudio.synthesize(partials, hopsize, sampleRate);
 					};
 
 					if (processedCallback) {

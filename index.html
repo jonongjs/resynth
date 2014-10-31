@@ -13,7 +13,7 @@
 
   <body>
     <div ng-controller="MainController" drag-upload class="hide-at-load" id="main">
-		<form> <input type="file" id="inputfile" class="inputfile" input-change="addFile(f)"/> </form>
+		<form> <input type="file" id="inputfile" accept="audio/*" class="inputfile" input-change="addFile(f)"/> </form>
 		<div class="drag-upload">Drag here!</div>
 
 		<div class="btn-group-vertical" id="toolbar">

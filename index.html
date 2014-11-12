@@ -78,10 +78,19 @@
 						<i class="fa fa-lg fa-paste"></i>
 					</button>
 				</div>
-				<div class="btn-group">
+				<div class="btn-group" dropdown is-open="status.isopen">
+					<button class="btn btn-success dropdown-toggle" tootip="Export" tooltip-placement="bottom">
+						<i class="fa fa-lg fa-download"></i>
+					</button>
+					<ul class="dropdown-menu" role="menu">
+						<li><a href="#" ng-click="downloadWav()">Export .wav</a></li>
+						<li><a href="#" ng-click="downloadPd()">Export .pd</a></li>
+					</ul>
+					<!--
 					<button class="btn btn-success" tootip="Export" tooltip-placement="bottom" ng-click="downloadWav()" >
 						<i class="fa fa-lg fa-download"></i>
 					</button>
+					-->
 				</div>
 
 				<alert ng-repeat="alert in alerts" type="{{alert.type}}">{{alert.msg}}</alert>

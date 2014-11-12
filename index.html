@@ -77,6 +77,9 @@
 					<button class="btn btn-default" tootip="Paste tracks" tooltip-placement="bottom" ng-click="pasteFromBuffer()" ng-disabled="getBuffer().length == 0">
 						<i class="fa fa-lg fa-paste"></i>
 					</button>
+					<button class="btn btn-default" tootip="Delete selection" tooltip-placement="bottom" ng-click="deleteSelection()" ng-disabled="!hasSelection()">
+						<i class="fa fa-lg fa-trash"></i>
+					</button>
 				</div>
 				<div class="btn-group" dropdown is-open="status.isopen">
 					<button class="btn btn-success dropdown-toggle" tootip="Export" tooltip-placement="bottom">

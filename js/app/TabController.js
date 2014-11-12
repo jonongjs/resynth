@@ -41,6 +41,11 @@ app.controller('TabController', ['$scope', '$rootScope', '$modal', '$log', funct
 		$scope.addPartials($scope.getBuffer());
 		$scope.replotPartials($scope.partials);
 	};
+	$scope.deleteSelection = function() {
+		var selection = $scope.getSelection();
+		$scope.removePartials(selection);
+		$scope.replotPartials($scope.partials);
+	}
 
 	$scope.downloadWav = function() {
 		var samples = $scope.synthesize($scope.partials);

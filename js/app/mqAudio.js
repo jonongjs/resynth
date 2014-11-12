@@ -215,10 +215,10 @@
 
 		//TODO: figure out FFT factor
 		// Normalize it
-		var maxAmp = _(audioBuffer).map(abs).max().value();
-		for (var i=0; i<bufferSize; ++i) {
-			audioBuffer[i] = audioBuffer[i] / maxAmp * 0.5;
-		}
+		//var maxAmp = _(audioBuffer).map(abs).max().value();
+		//for (var i=0; i<bufferSize; ++i) {
+		//	audioBuffer[i] = audioBuffer[i] / maxAmp * 0.5;
+		//}
 		return audioBuffer;
 	};
 

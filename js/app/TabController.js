@@ -1,7 +1,7 @@
 app.controller('TabController', ['$scope', '$rootScope', '$modal', '$log', function($scope, $rootScope, $modal, $log) {
 
 	$scope.params = {
-		threshold: 0.00001,
+		threshold: 0.01,
 		maxPeaks: 60,
 		matchDelta: 200,
 		windowSize: 1024,

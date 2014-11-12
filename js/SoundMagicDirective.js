@@ -71,13 +71,18 @@ app.directive('soundMagic', function($window) {
 			var start = 0;
 			var index;
 			var i,j;
+			var spectrum;
 			for (i=0; i<numBuffers-1; ++i) {
 				index = start;
 				for (j=0; j<fftsize; ++j) {
 					fft.pushSample(buffer[index++]*windowSamples[j]);
 				}
 				//NOTE: audioLib.FFT gives us the magnitude spectrum
-				spectrogram.push(new Float64Array(fft.spectrum));
+				spectrum = new Float64Array(fft.spectrum);
+				for (j=0; j<fftsize; ++j) {
+					spectrum[j] *= fftsize; //HACK for normalization
+				}
+				spectrogram.push(spectrum);
 				start += hopsize;
 			}
 			// Handle the final frame as a special case to deal with padding
@@ -89,7 +94,11 @@ app.directive('soundMagic', function($window) {
 					fft.pushSample(0);
 				}
 			}
-			spectrogram.push(new Float64Array(fft.spectrum));
+			spectrum = new Float64Array(fft.spectrum);
+			for (j=0; j<fftsize; ++j) {
+				spectrum[j] *= fftsize; //HACK for normalization
+			}
+			spectrogram.push(spectrum);
 
 			return spectrogram;
 		};
